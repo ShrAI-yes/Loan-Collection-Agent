@@ -1,0 +1,11 @@
+1.Go to voice-bot folder
+2.Create a virtual Environment
+3.Activate the Environment
+4.Do: pip install -r requirements.txt
+5.Check the Api Keys
+6.Run voicebot.py in terminal to check if everything is working properly. If so, we can proceed to next steps.
+6.Close the voicebot.py script. It was only for trial purpose.
+7.Now run the app.py scipt. This is a flask server. Be sure to run it inside the environment.
+8.Go to the frontend folder
+9.Do: npm install
+10.Do: npm run dev
