@@ -18,7 +18,7 @@ llm = ChatMistralAI(
     model="codestral-latest",
     temperature=0,
     max_retries=100,
-    api_key="API_KEY"
+    api_key="6rnYo35pFqCbyLPo6hf4pndUOnGg62oP"
 )
 
 def speech_to_text():
@@ -145,8 +145,8 @@ def chat(text: str) -> str:
 
 
 RESET = "\033[0m"
-BLUE = "\033[94m"  # User color
-GREEN = "\033[92m"  # Assistant color
+BLUE = "\033[94m"  
+GREEN = "\033[92m"  
 
 if __name__ == "__main__":
     print("Welcome! You can speak or type your queries. Say 'exit' or type 'thanks' to quit.")
