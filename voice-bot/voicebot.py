@@ -15,10 +15,10 @@ from langchain_core.messages import ToolMessage, HumanMessage, SystemMessage, AI
 from langchain.tools import tool, StructuredTool
 
 llm = ChatMistralAI(
-    model="codestral-latest",
+    model="codestral-2501",
     temperature=0,
     max_retries=100,
-    api_key="6rnYo35pFqCbyLPo6hf4pndUOnGg62oP"
+    api_key="HjbwhDXRzRjxaKcj6GLdS5jWP2SUNpH7"
 )
 
 def speech_to_text():

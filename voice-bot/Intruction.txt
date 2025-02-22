@@ -1,3 +1,4 @@
+#you can ignore this
 1.Go to voice-bot folder
 2.Create a virtual Environment
 3.Activate the Environment
@@ -9,3 +10,20 @@
 8.Go to the frontend folder
 9.Do: npm install
 10.Do: npm run dev
+
+
+
+#the twilio part
+1.Go to voice-bot folder
+2.Create a virtual Environment
+3.Activate the Environment
+4.Do: pip install -r requirements.txt
+5.Setup a twilio account and set the Api Keys 
+6.Install ngrok on your system
+7.Run 'ngrok http 500' on your terminal
+8.Add the url given by ngrok to the WEBHOOK_BASE_URL in app.py
+9.Add the WEBHOOK_BASE_URL/handle-call in your twilio dashboard
+9.Run app.py (ensure all the twilio api keys and llm api keys are proper)
+10.If both are running properly, make a post request in another terminal: curl -X POST YOUR_WEBHOOK_URL/start-call
+
+

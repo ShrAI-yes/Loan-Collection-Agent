@@ -15,19 +15,13 @@ CORS(app)
 app.config['SERVER_NAME'] = None
 app.config['PREFERRED_URL_SCHEME'] = 'https'
 
-WEBHOOK_BASE_URL="YOUR_URL"
+WEBHOOK_BASE_URL="WEBHOOK_URL"
 
 load_dotenv() 
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_PHONE = os.getenv("TWILIO_PHONE")
 USER_PHONE = os.getenv("USER_PHONE")
-
-print("Configuration:")
-print(f"Account SID: {TWILIO_ACCOUNT_SID[:6]}...{TWILIO_ACCOUNT_SID[-4:]}")
-print(f"Phone From: {TWILIO_PHONE}")
-print(f"Phone To: {USER_PHONE}")
-print(f"Webhook URL: {WEBHOOK_BASE_URL}")
 
 if not all([TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE, USER_PHONE]):
     raise ValueError("Missing required Twilio environment variables")
@@ -75,9 +69,9 @@ def speech_to_text():
         except sr.WaitTimeoutError:
             return "Listening timed out. Please try again."
 
-@app.route("/", methods=["GET"])
-def health_check():
-    return jsonify({"status": "healthy", "message": "Server is running"}), 200
+# @app.route("/", methods=["GET"])
+# def health_check():
+#     return jsonify({"status": "healthy", "message": "Server is running"}), 200
 
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chatbot():
@@ -150,13 +144,13 @@ def call_status():
 
 @app.route("/handle-call", methods=["POST"])
 def handle_call():
-    print("\nHandling incoming call:")
-    print(f"Request form data: {dict(request.form)}") 
+    # print("\nHandling incoming call:")
+    # print(f"Request form data: {dict(request.form)}") 
     # if not validate_twilio_request():
     #     print("Failed to validate Twilio request")
     #     return "Invalid request", 403
     response = VoiceResponse()
-    response.say("Hello! I'm your AI assistant. How can I help you today?")
+    response.say("Hello! How can I help you today?")
     gather = Gather(input='speech', action=f'{WEBHOOK_BASE_URL}/process-speech', timeout=5)
     response.append(gather)
     return str(response)
