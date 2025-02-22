@@ -24,6 +24,6 @@
 8.Add the url given by ngrok to the WEBHOOK_BASE_URL in app.py
 9.Add the WEBHOOK_BASE_URL/handle-call in your twilio dashboard
 9.Run app.py (ensure all the twilio api keys and llm api keys are proper)
-10.If both are running properly, make a post request in another terminal: curl -X POST YOUR_WEBHOOK_URL/start-call
+10.If both are running properly, make a post request in another terminal: curl -X POST WEBHOOK_BASE_URL/start-call
 
 
