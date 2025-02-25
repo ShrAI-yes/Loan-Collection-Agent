@@ -1,7 +1,7 @@
 import pandas as pd
 
 #Update with Database Location
-dataset = pd.read_csv('RAG docs/indian_borrowers_dataset.csv')
+dataset = pd.read_csv('../RAG docs/indian_borrowers_dataset.csv')
 
 data = [
     'F_Name','L_Name', "Gender", 'Mobile_No', "Income", 'Bureau_score', 
