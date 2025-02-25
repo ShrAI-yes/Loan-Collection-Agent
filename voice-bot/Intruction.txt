@@ -1,3 +1,5 @@
+This is the instruction file to setup the system locally.
+
 1.Go to voice-bot folder
 2.Create a virtual Environment
 3.Activate the Environment
