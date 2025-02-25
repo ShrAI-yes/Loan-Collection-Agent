@@ -15,7 +15,7 @@ llm = ChatMistralAI(
     model="mistral-large-latest",
     temperature=0,
     max_retries=100,
-    api_key="6rnYo35pFqCbyLPo6hf4pndUOnGg62oP"
+    api_key="APIKEY"
 )
 
 vad_model, utils = torch.hub.load('snakers4/silero-vad', 'silero_vad', trust_repo=True)
