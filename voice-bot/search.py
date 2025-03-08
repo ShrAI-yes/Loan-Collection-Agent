@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
+#the code below is used to search for the information of the user based on the phone number 
 
 import os
 import time
@@ -13,10 +12,10 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from db_search import get_info as search
 
 llm = ChatMistralAI(
-    model="mistral-large-latest",
+    model="codestral-2501",
     temperature=0,
-    max_retries=5,
-    api_key="API_KEY"  
+    max_retries=100,
+    api_key="api_key"
 )
 
 embedder = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
@@ -58,7 +57,7 @@ def get_response(user_query, doc_context):
     return response
 
 if __name__ == "__main__":
-    phone_number = 9988953565  #replace with dynamic input if needed
+    phone_number = 9324082517  
     person_info = search(phone_number)
     
     if person_info:

@@ -8,12 +8,11 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import ToolMessage, HumanMessage, SystemMessage, AIMessage
 from langchain.tools import tool, StructuredTool
 
-# Initialize LLM
 llm = ChatMistralAI(
-    model="mistral-large-latest",
+    model="codestral-2501",
     temperature=0,
     max_retries=100,
-    api_key="6rnYo35pFqCbyLPo6hf4pndUOnGg62oP"
+    api_key="r2laTLGuoa4V7Lm5onLICJf942bSlEJs"
 )
 
 @tool
@@ -69,7 +68,7 @@ template_messages = [
 
 prompt_template = ChatPromptTemplate.from_messages(template_messages)
 
-phone = 9804604602
+phone = 9324082517
 user_data = get_info(phone)
 user_info = {
     "first_name": user_data['first_name'],

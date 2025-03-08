@@ -1,7 +1,8 @@
+#this code has a function to search for the information of the user based on the phone number
+
 import pandas as pd
 
-#Update with Database Location
-dataset = pd.read_csv('../RAG docs/indian_borrowers_dataset.csv')
+dataset = pd.read_csv('../RAG docs/indian_borrowers_dataset_modified.csv')
 
 data = [
     'F_Name','L_Name', "Gender", 'Mobile_No', "Income", 'Bureau_score', 
@@ -10,7 +11,6 @@ data = [
     "No_of_late_payments"
 ]
 
-#Design a function to return relevant data in dictionary/JSON format.
 def get_info(phone):
     if phone in dataset['Mobile_No'].values:
         user_data = dataset[dataset['Mobile_No'] == phone][data]
