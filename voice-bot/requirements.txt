@@ -39,6 +39,7 @@ Deprecated==1.2.18
 distro==1.9.0
 durationpy==0.9
 edge-tts==7.0.0
+elevenlabs==1.52.0
 exceptiongroup==1.2.2
 executing==2.2.0
 fastapi==0.115.8
@@ -322,6 +323,7 @@ pyobjc-framework-VideoToolbox==11.0
 pyobjc-framework-Virtualization==11.0
 pyobjc-framework-Vision==11.0
 pyobjc-framework-WebKit==11.0
+pypdf==5.3.1
 PyPika==0.48.9
 pyproject_hooks==1.2.0
 python-dateutil==2.9.0.post0
@@ -333,6 +335,7 @@ pyttsx3==2.98
 pytz==2025.1
 PyYAML==6.0.2
 pyzmq==26.2.1
+redis==5.2.1
 referencing==0.36.2
 regex==2024.11.6
 requests==2.32.3
