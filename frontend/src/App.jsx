@@ -1,3 +1,5 @@
+// Add ngrok url given to you in the socket connection placeholder 'ngrok_url'
+
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Bar } from "react-chartjs-2";
@@ -5,13 +7,13 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const socket = io("url", { transports: ["websocket"] });
+const socket = io("your_ngrok_url", { transports: ["websocket"] });   //e.g., "https://abcd1234.ngrok.io"
 
 const App = () => {
   const [borrowers, setBorrowers] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [selectedBorrower, setSelectedBorrower] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [conversation, setConversation] = useState([]);
   const [callStatus, setCallStatus] = useState(null);
   const [callLogs, setCallLogs] = useState([]);
@@ -68,7 +70,9 @@ const App = () => {
     setCallStatus("Initiating call...");
     setConversation([]);
     setShowLatencyChart(false);
-    socket.emit("start_call", { phone: selectedBorrower, language: selectedLanguage });
+    //mapping the language name to code before sending
+    const languageCode = languages.find(lang => lang.name === selectedLanguage)?.code || "en";
+    socket.emit("start_call", { phone: selectedBorrower, language: languageCode });
   };
 
   const getAverageLatencies = () => {
