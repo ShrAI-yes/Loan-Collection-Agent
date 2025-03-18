@@ -1,3 +1,8 @@
+#this script is a speech enabled chatbot that interacts with the user to provide information about their loan and answer financial queries
+#the user can speak or write their queries and the bot will respond accordingly
+#the bot will only respond in text format 
+#THIS SCRIPT IS A STANDALONE SCRIPT
+
 import json
 import datetime
 import pytz
@@ -10,10 +15,10 @@ from langchain_core.messages import ToolMessage, HumanMessage, SystemMessage, AI
 from langchain.tools import tool, StructuredTool
 
 llm = ChatMistralAI(
-    model="mistral-large-latest",
+    model="codestral-2501",
     temperature=0,
     max_retries=100,
-    api_key="6rnYo35pFqCbyLPo6hf4pndUOnGg62oP"
+    api_key="your_api_key"
 )
 
 def speech_to_text():
@@ -78,7 +83,7 @@ template_messages = [
 
 prompt_template = ChatPromptTemplate.from_messages(template_messages)
 
-phone = 9804604602
+phone = 9324082517
 user_data = get_info(phone)
 
 user_info = {

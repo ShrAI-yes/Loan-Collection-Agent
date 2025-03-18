@@ -1,3 +1,5 @@
+# THIS SCRIPT IS THE MAIN SCRIPT 
+
 import json
 import datetime
 import pytz
@@ -19,7 +21,7 @@ llm = ChatMistralAI(
     model="mistral-large-latest",
     temperature=0,
     max_retries=100,
-    api_key="9Ri3VdqzAXnOBjeEjtac7r6WxL4cVGDA"
+    api_key="your_api_key"
 )
 
 def speech_to_text():
@@ -87,7 +89,7 @@ llm_with_tools = llm.bind_tools([get_user_data, current_date_time, fetch_policy_
 tool_mapping = {
     "get_user_data": get_user_data,
     "current_date_time": current_date_time,
-    "fetch_policy_query": fetch_policy_query  # Map the tool name expected by the LLM
+    "fetch_policy_query": fetch_policy_query  
 }
 
 template_en = """
@@ -108,7 +110,7 @@ For customer {first_name} {last_name} with an outstanding balance of Rs. {balanc
 2. If they confirm, say:  
    "Great! Just a quick heads-up—your balance of Rs. {balance_to_pay} is due by {start_date}. Paying on time helps avoid late fees and credit score issues. When do you think you can settle it?"
 3. If they offer to pay X amount, calculate the remaining_balance = {balance_to_pay} - X, then say:  
-   "Awesome, thanks! You can pay Rs. X at {payment_link}, and we’ll extend the due date for the remaining Rs. {remaining_balance} by 10 days. Got any questions?"
+   "Awesome, thanks! You can pay Rs. X at https://pay.predixionai.com, and we’ll extend the due date for the remaining Rs. {balance_to_pay} - X by 10 days. Got any questions?"
 4. If they refuse or hesitate, offer an alternative:  
    "No worries, I get it. Could you manage to pay a small amount now? That would help push the due date by 10 days. What do you think?"
 
@@ -128,7 +130,7 @@ For customer {first_name} {last_name} with an outstanding balance of Rs. {balanc
 
 ### Rules of Communication:
 1. Maintain a polite, non-confrontational, and empathetic tone.
-2. Keep responses short, natural, and to the point—avoid long-winded explanations.
+2. Keep response to the point—avoid long-winded explanations.
 3. Do not repeat sentences or the customer’s responses.
 4. Provide only verified information—do not speculate or assume.
 5. Protect customer privacy—never share details with anyone else.
@@ -136,9 +138,6 @@ For customer {first_name} {last_name} with an outstanding balance of Rs. {balanc
 7. Avoid unnecessary remarks and repetitive phrases.
 8. If the customer is unwilling to pay, handle it gracefully and suggest alternatives.
 9. Wrap up efficiently without dragging the conversation.
-
-### Policies to Adhere To:
-{policies}
 """
 
 
@@ -166,8 +165,8 @@ template_hi = """
 3. अगर वे X राशि का भुगतान करने की पेशकश करें, तो शेष राशि निकालें:  
    `remaining_balance = {balance_to_pay} - X`  
    फिर कहें:  
-   **"शानदार! आप Rs. X का भुगतान यहाँ कर सकती हैं: {payment_link}।  
-   शेष राशि Rs. {remaining_balance} के लिए हम आपकी समय सीमा 10 दिनों के लिए बढ़ा सकते हैं।  
+   **"शानदार! आप Rs. X का भुगतान यहाँ कर सकती हैं: https://pay.predixionai.com ।  
+   शेष राशि Rs. remaining_balance के लिए हम आपकी समय सीमा 10 दिनों के लिए बढ़ा सकते हैं।  
    क्या आपको कोई और जानकारी चाहिए?"**  
 4. अगर वे हिचकिचाएं या मना करें, तो कहें:  
    **"कोई बात नहीं, मैं समझ सकती हूँ। क्या आप अभी थोड़ी सी राशि चुका सकती हैं?  
@@ -181,7 +180,7 @@ template_hi = """
   - **"क्या आपको कोई और जानकारी चाहिए?"**  
 
 - वित्तीय नीतियों से जुड़े प्रश्न (जैसे, "अगर मैं अपना लोन जल्दी बंद कर दूं तो क्या होगा?" "क्या मैं अधिक भुगतान की गई EMI की धनवापसी प्राप्त कर सकती हूँ?") → **'fetch_policy_query' का उपयोग करें**  
-  - **"[प्राप्त जानकारी]। क्या आपको और कुछ पूछना है?"**  
+  - **"[प्राप्त जानकारी]। क्या आपको और कुछ पूछना है?"**  t
 
 ### बातचीत को समाप्त करना:
 - यदि ग्राहक भुगतान की पुष्टि करें या उनकी शंका दूर हो जाए:  
@@ -204,9 +203,6 @@ template_hi = """
 7. अनावश्यक टिप्पणी और बार-बार एक ही बात कहने से बचें।  
 8. यदि ग्राहक भुगतान करने को तैयार न हो, तो उसे सम्मानपूर्वक हैंडल करें और एक समाधान सुझाएँ।  
 9. बातचीत को कुशलता से समाप्त करें, इसे ज़रूरत से ज्यादा लंबा न करें।  
-
-### जिन नीतियों का पालन किया जाना चाहिए:
-{policies}
 """
 
 chat_history = []
@@ -219,6 +215,7 @@ if user_data is None:
 
 user_info = {
     "first_name": user_data["first_name"],
+    "last_name": user_data["last_name"],
     "balance_to_pay": user_data["balance_to_pay"],
     "start_date": user_data["start_date"],
     "loan_type": user_data["loan_type"]
@@ -232,6 +229,7 @@ formatted_template = template_en.format(
     balance_to_pay=user_info["balance_to_pay"],
     start_date=user_info["start_date"],
     loan_type=user_info["loan_type"],
+    last_name=user_info["last_name"],
     policies=policies
 )
 
@@ -243,12 +241,13 @@ template_messages = [
 
 prompt_template = ChatPromptTemplate.from_messages(template_messages)
 
-def chat(text: str = None, lang="hi") -> str:
+def chat(text: str = None, lang="en") -> str:  
     global chat_history, prompt_template
     if not chat_history:
-        template = template_hi if lang == "hi" else template_hi
+        template = template_hi if lang == "hi" else template_en  
         formatted_template = template.format(
             first_name=user_info["first_name"],
+            last_name=user_info["last_name"],
             balance_to_pay=user_info["balance_to_pay"],
             start_date=user_info["start_date"],
             loan_type=user_info["loan_type"],
@@ -259,7 +258,10 @@ def chat(text: str = None, lang="hi") -> str:
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{query}")
         ])
-        initial_message = f"हाय! मैं Predixion AI से हूँ। क्या आप {user_info['first_name']} जी हैं?"
+        initial_message = (
+            f"हाय! मैं Predixion AI से हूँ। क्या आप {user_info['first_name']} जी हैं?" if lang == "hi" 
+            else f"Hey there! I’m from Predixion AI. Is this {user_info['first_name']}?"
+        )
         chat_history.append(AIMessage(content=initial_message))
         return initial_message
     if text:
@@ -276,21 +278,27 @@ def chat(text: str = None, lang="hi") -> str:
                 tool = tool_mapping[tool_name]
                 output = tool.invoke(tool_call['args'])
                 print(f"Debug: Tool {tool_name} output: {output}")
-                tool_output = str(output) if output else "मुझे वह जानकारी नहीं मिल सकी।"
+                tool_output = str(output) if output else ("मुझे वह जानकारी नहीं मिल सकी।" if lang == "hi" else "Sorry, I couldn’t retrieve that information.")
                 chat_history.append(ToolMessage(content=tool_output, tool_call_id=tool_call['id']))
             ai_says = llm_with_tools.invoke(chat_history)
             print("Debug: Final AI response after tools:", ai_says.content)
             chat_history.append(ai_says)
-            return ai_says.content if isinstance(ai_says.content, str) else "कुछ गड़बड़ हो गई। कृपया फिर से पूछें।"
+            return ai_says.content if isinstance(ai_says.content, str) else ("कुछ गड़बड़ हो गई। कृपया फिर से पूछें।" if lang == "hi" else "Something went wrong. Please try again.")
         else:
             recent_history = chat_history[-4:]
-            unclear_count = sum(1 for msg in recent_history if isinstance(msg, AIMessage) and "थोड़ा और बता सकते हैं" in msg.content)
+            unclear_count = sum(1 for msg in recent_history if isinstance(msg, AIMessage) and ("थोड़ा और बता सकते हैं" in msg.content or "Can you tell me a bit more" in msg.content))
             if unclear_count >= 2:
-                final_message = "आपके समय के लिए शुक्रिया! हम ईमेल पर सारांश और रिमाइंडर भेज देंगे। जरूरत हो तो संपर्क करें। Bye!"
+                final_message = (
+                    "आपके समय के लिए शुक्रिया! हम ईमेल पर सारांश और रिमाइंडर भेज देंगे। जरूरत हो तो संपर्क करें। Bye!" if lang == "hi" 
+                    else "Thanks for your time! We’ll email you a summary. Reach out if you need us. Bye for now!"
+                )
                 chat_history.append(AIMessage(content=final_message))
                 return final_message
             return response.content
-    return "मैं आपके भुगतान में सहायता के लिए हूँ। मैं कैसे मदद कर सकती हूँ?"
+    return (
+        "मैं आपके भुगतान में सहायता के लिए हूँ। मैं कैसे मदद कर सकती हूँ?" if lang == "hi" 
+        else "I’m here to assist with your payment. How can I help?"
+    )
 
 RESET = "\033[0m"
 BLUE = "\033[94m"
