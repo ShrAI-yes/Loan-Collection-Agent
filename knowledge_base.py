@@ -42,7 +42,7 @@ def fetch_query(query):
     results = collection.query(
         query_texts=[query],
         n_results=3,
-        include=["documents", "metadatas"]
+        include=['documents', 'metadatas']
     )
 
     context = ''.join([rules for rules in results['documents'][0]])
