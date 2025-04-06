@@ -1,12 +1,62 @@
+import os
+import json
+import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, firestore
-from langchain.chains.question_answering.map_reduce_prompt import messages
 
+class UserData:
+    def __init__(self):
+        self.dir_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'user_files')
+        self.file_path = ''
+        self.Data = None
+        self.important_fields = [
+            'F_Name', 'L_Name', "Gender", 'Mobile_No', "Income", 'Bureau_score',
+            "Loan_amount", "Loan_type", "Interest_Rate", 'Interest', 'Loan_Processing_Fee', "Current_balance",
+            "Installment_Amount",
+            'Disbursal_Date', "Repayment_Start_Date", "Repayment_tenure", "Date_of_last_payment", 'Repayment_mode',
+            "No_of_late_payments"
+        ]
+
+    def read_file(self,file_name):
+        self.file_path = os.path.join(self.dir_path, file_name)
+        try:
+            self.Data = pd.read_csv(self.file_path)
+        except FileNotFoundError as e:
+            print(f"I dont think the file '{file_name}' exists. Did you add it in the 'user_files' directory?")
+
+    def fetch_user(self,phone_no):
+        try:
+            if phone_no in self.Data['Mobile_No'].values:
+                user_data = self.Data.loc[self.Data['Mobile_No'] == phone_no][self.important_fields]
+                user_info = {
+                    "first_name": user_data['F_Name'].item(),
+                    "last_name": user_data['L_Name'].item(),
+                    "phone_no": user_data['Mobile_No'].item(),
+                    "gender": user_data['Gender'].item(),
+                    "income_in_inr": user_data['Income'].item(),
+                    "credit_score": user_data['Bureau_score'].item(),
+                    "loan_type": user_data['Loan_type'].item(),
+                    "loan_amount": user_data['Loan_amount'].item(),
+                    "interest_rate": user_data['Interest_Rate'].item(),
+                    "process_fee": user_data['Loan_Processing_Fee'].item(),
+                    "installment": user_data['Installment_Amount'].item(),
+                    "start_date": user_data['Repayment_Start_Date'].item(),
+                    "tenure": user_data['Repayment_tenure'].item(),
+                    "balance_to_pay": user_data['Current_balance'].item(),
+                    "payment_mode": user_data['Repayment_mode'].item(),
+                    "late_payment": user_data['No_of_late_payments'].item(),
+                    "last_date": user_data['Date_of_last_payment'].item()
+                }
+                return user_info
+            else:
+                print('User does not exist.')
+                return {"Error": "User does not exist."}
+        except KeyError as e:
+            print('Such a Phone Number does not exist in the File.')
 
 class Database:
     def __init__(self):
-        #Check Credentials JSON File path
-        self.cred = credentials.Certificate("./predixion-145c5-firebase-adminsdk-fbsvc-e0abad91cf.json")
+        self.cred = credentials.Certificate("./predixion-145c5-firebase-adminsdk-fbsvc-67522dea10.json")
         firebase_admin.initialize_app(self.cred)
         self.db = firestore.client()
 
@@ -14,11 +64,12 @@ class Database:
         doc_ref = self.db.collection("testing").document(phone)
         if not doc_ref.get().exists:
             data = {
-                "whatsApp_id": wa_id,
+                "whatsapp_id": wa_id,
                 "id": chat_id,
                 "phone": phone,
                 "name": name,
-                "messages": [],
+                "whatsapp_messages": [],
+                "call_transcripts": []
             }
             self.db.collection("testing").document(phone).set(data)
 
@@ -31,11 +82,21 @@ class Database:
         }
         return msg
 
-    def add_convo(self, ref, msg):
-        ref.update({"messages": firestore.ArrayUnion([msg])})
+    def add_convo(self, ref, agent, msg):
+        if agent == 'voice':
+            ref.update({"call_transcripts": firestore.ArrayUnion([msg])})
+        elif agent == 'whatsapp':
+            ref.update({"whatsapp_messages": firestore.ArrayUnion([msg])})
+        else:
+            raise Exception('Invalid Agent')
 
-    def get_convo(self, ref):
-        conversation = ref.get().to_dict()['messages']
+    def get_convo(self, ref, agent):
+        if agent == 'voice':
+            conversation = ref.get().to_dict()['call_transcripts']
+        elif agent == 'whatsapp':
+            conversation = ref.get().to_dict()['whatsapp_messages']
+        else:
+            raise Exception('Invalid Agent')
 
         for msg in conversation:
             if 'timestamp' in msg:
