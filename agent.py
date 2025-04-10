@@ -14,9 +14,13 @@ from langchain_core.messages import ToolMessage, HumanMessage, SystemMessage, AI
 from langchain.tools import tool, StructuredTool
 nest_asyncio.apply()
 
+from superAgent import SuperAgent
 
-class Agent:
-    def __init__(self, phone, api_key=''):
+class Agent(SuperAgent):
+    def __init__(self, phone):
+
+        super().__init__(preference) #Inherit Super Agent
+
         self.phone = int(phone)
         self.llm = ChatMistralAI(
             model="mistral-large-latest",

@@ -4,6 +4,8 @@ import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+import RAGer as rag
+
 class UserData:
     def __init__(self):
         self.dir_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'user_files')
@@ -19,10 +21,21 @@ class UserData:
 
     def read_file(self,file_name):
         self.file_path = os.path.join(self.dir_path, file_name)
-        try:
-            self.Data = pd.read_csv(self.file_path)
-        except FileNotFoundError as e:
-            print(f"I dont think the file '{file_name}' exists. Did you add it in the 'user_files' directory?")
+        self.file_extension = os.path.splitext(self.file_path)[1]
+        if self.file_extension == '.csv':
+            try:
+                self.Data = pd.read_csv(self.file_path)
+            except FileNotFoundError as e:
+                print(f"I dont think the file '{file_name}' exists. Did you add it in the 'user_files' directory?")
+
+        elif self.file_extension == '.pdf':
+            docs = rag.load_dir(self.file_path)
+            ids, texts, metadata = rag.chunking(docs)
+            rag.embed_chunks(ids, texts, metadata)
+            self.Data = "Data is Vectorized. Use fetch_info(query) method to get data."
+
+        else:
+            print("Currently only 'csv' and 'pdf' files can be read")
 
     def fetch_user(self,phone_no):
         try:
@@ -53,6 +66,10 @@ class UserData:
                 return {"Error": "User does not exist."}
         except KeyError as e:
             print('Such a Phone Number does not exist in the File.')
+
+    def fetch_info(self,query):
+        result = rag.fetch_query(query)
+        return result
 
 class Database:
     def __init__(self):
