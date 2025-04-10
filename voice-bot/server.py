@@ -1,5 +1,4 @@
 # THIS SCRIPT IS THE MAIN SERVER SCRIPT WHICH CONNECTS WITH TWILIO AS WELL AS VOICEBOT.PY
-
 import time
 import os
 from flask import Flask, request, jsonify, send_file
@@ -10,16 +9,21 @@ from twilio.twiml.voice_response import VoiceResponse, Gather
 from elevenlabs.client import ElevenLabs
 from elevenlabs import save
 from dotenv import load_dotenv
-from voicebot import chat, phone as voicebot_phone
+from voicebot import chat
 from collections import defaultdict
 from flask_socketio import emit
+import requests
+from context_manager import Database
+from gtts import gTTS
+
+conversation_history = defaultdict(list)  
+WHATSAPP_API_URL="http://localhost:8000/send-summary"
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)  
-# app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-WEBHOOK_BASE_URL = "your_ngrok_url"  # e.g., "https://abcd1234.ngrok.io"
+WEBHOOK_BASE_URL = "https://5394-103-185-11-231.ngrok-free.app" 
 
 load_dotenv()
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
@@ -37,33 +41,41 @@ except Exception as e:
     print(f"Failed to initialize Twilio client: {str(e)}")
     raise
 
-elevenlabs_client = ElevenLabs(api_key="your_elevenlabs_api_key")
+# elevenlabs_client = ElevenLabs(api_key="sk_55f902c5ef7dddd7a65066aba188870ebb3da4610f7d373a")
 call_state = {}
+db = Database()  
 
 def text_to_speech(text, language="en"):
-    """Convert text to speech using ElevenLabs and return the audio file path."""
     audio_file = "response.mp3"
     if os.path.exists(audio_file):
         os.remove(audio_file)
-    
-    # voice: Hindi
-    if language == "hi":
-        audio = elevenlabs_client.text_to_speech.convert(
-            text=text,
-            voice_id="50YSQEDPA2vlOxhCseP4",  # Hindi voice
-            model_id="eleven_flash_v2_5",
-            output_format="mp3_44100_128"
-        )
-    else:  # voice: English
-        audio = elevenlabs_client.text_to_speech.convert(
-            text=text,
-            voice_id="90ipbRoKi4CpHXvKVtl0",  # English voice
-            model_id="eleven_flash_v2_5",
-            output_format="mp3_44100_128"
-        )
-    
-    save(audio, audio_file)
+    tts = gTTS(text=text, lang=language, tld="co.uk" if language == "en" else "co.in")  # 'co.in' for Hindi, 'co.uk' for English
+    tts.save(audio_file)
     return audio_file
+
+# def text_to_speech(text, language="en"):
+#     audio_file = "response.mp3"
+#     if os.path.exists(audio_file):
+#         os.remove(audio_file)
+    
+#     # voice: Hindi
+#     if language == "hi":
+#         audio = elevenlabs_client.text_to_speech.convert(
+#             text=text,
+#             voice_id="50YSQEDPA2vlOxhCseP4",  # Hindi voice
+#             model_id="eleven_flash_v2_5",
+#             output_format="mp3_44100_128"
+#         )
+#     else:  # voice: English
+#         audio = elevenlabs_client.text_to_speech.convert(
+#             text=text,
+#             voice_id="90ipbRoKi4CpHXvKVtl0",  # English voice
+#             model_id="eleven_flash_v2_5",
+#             output_format="mp3_44100_128"
+#         )
+    
+#     save(audio, audio_file)
+#     return audio_file
 
 @socketio.on('connect')
 def handle_connect():
@@ -110,24 +122,56 @@ def call_status():
     call_status_tracker[call_sid] = call_status
     print(f"Call {call_sid} status: {call_status}")
     socketio.emit('call_status', {"call_sid": call_sid, "status": call_status})
-    #cleaning up call_state when call is completed
+    
     if call_status == "completed" and call_sid in call_state:
+        state = call_state[call_sid]
+        phone = state["phone"]
+        language = state["language"]
+        history = conversation_history.get(call_sid, [])
+        
+        if history:
+            #Initialize Firestore document
+            ref = db.init_user(phone)
+            
+            #Prepare summary for WhatsApp
+            summary = "Hello! We just had a call with you! The following is the transcript or conversation summary:\n" if language == "en" else "बातचीत का सारांश:\n"
+            for entry in history:
+                summary += f"User: {entry['user']}\nBot: {entry['bot']}\n\n"
+                #Save to Firestore
+                db.add_convo(ref, "voice", db.payload("User", entry['user'], time.ctime()))
+                db.add_convo(ref, "voice", db.payload("Bot", entry['bot'], time.ctime()))
+        
+            #Send WhatsApp summary
+            try:
+                response = requests.post(WHATSAPP_API_URL, json={
+                    "phone_number": phone,
+                    "message": summary
+                })
+                if response.status_code == 200:
+                    print(f"Sent WhatsApp summary to {phone}")
+                    #Store the summary in whatsapp_messages
+                    db.add_convo(ref, "whatsapp", db.payload("Bot", summary, time.ctime()))
+                else:
+                    print(f"Failed to send WhatsApp summary: HTTP {response.status_code}")
+            except Exception as e:
+                print(f"Failed to send WhatsApp summary: {str(e)}")
+        
         del call_state[call_sid]
+        if call_sid in conversation_history:
+            del conversation_history[call_sid]
+    
     return "", 200
 
 @app.route("/handle-call", methods=["POST"])
 def handle_call():
     response = VoiceResponse()
     call_sid = request.form.get("CallSid")
-    
-    #retrieve phone and language from call_state
     state = call_state.get(call_sid, {"phone": "9324082517", "language": "en"})
     phone = state["phone"]
     language = state["language"]
     
-    global voicebot_phone
-    voicebot_phone = phone
-    initial_message = chat(lang=language)
+    print(f"Handling call for phone: {phone}")  
+    initial_message = chat(lang=language, phone=phone)  
     audio_file = text_to_speech(initial_message, language)
     response.play(f"{WEBHOOK_BASE_URL}/serve-audio/{os.path.basename(audio_file)}")
     socketio.emit('conversation_update', {
@@ -135,7 +179,6 @@ def handle_call():
         "bot": initial_message,
         "latency_breakdown": {"total": 0}
     })
-    
     gather = Gather(input='speech', action=f'{WEBHOOK_BASE_URL}/process-speech', timeout=5, language="hi-IN" if language == "hi" else "en-IN")
     response.append(gather)
     print("TwiML Response:", str(response))
@@ -143,7 +186,6 @@ def handle_call():
 
 @app.route("/serve-audio/<filename>", methods=["GET"])
 def serve_audio(filename):
-    #serving the generated audio file
     return send_file(filename, mimetype="audio/mpeg")
 
 @app.before_request
@@ -155,8 +197,6 @@ def process_speech():
     response = VoiceResponse()
     call_sid = request.form.get("CallSid")
     user_input = request.values.get("SpeechResult")
-    
-    #retrieve phone and language from call_state
     state = call_state.get(call_sid, {"phone": "9324082517", "language": "en"})
     phone = state["phone"]
     language = state["language"]
@@ -164,7 +204,7 @@ def process_speech():
     if user_input:
         total_start = time.time()
         llm_start = time.time()
-        bot_response = chat(user_input, lang=language)  
+        bot_response = chat(user_input, lang=language, phone=phone)  # Pass phone explicitly
         llm_latency = time.time() - llm_start
         voice_start = time.time()
         audio_file = text_to_speech(bot_response, language)
@@ -183,6 +223,10 @@ def process_speech():
             "telephony": telephony_latency,
             "total": total_latency + telephony_latency
         }
+        conversation_history[call_sid].append({
+            "user": user_input,
+            "bot": bot_response
+        })
         socketio.emit('conversation_update', {
             "user": user_input,
             "bot": bot_response,
