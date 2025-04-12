@@ -19,7 +19,7 @@ class UserData:
 
     def read_file(self, file_name):
         self.file_path = os.path.join(self.dir_path, file_name)
-        print(f"Attempting to load file from: {self.file_path}")  # Debug
+        print(f"Attempting to load file from: {self.file_path}") 
         try:
             self.Data = pd.read_csv(self.file_path)
             print(f"File loaded successfully: {self.file_path}")
@@ -68,7 +68,7 @@ class Database:
         firebase_admin.initialize_app(self.cred)
         self.db = firestore.client()
 
-    def init_user(self,phone: str, wa_id=None, chat_id=None, name=None):
+    def init_user(self, phone: str, wa_id=None, chat_id=None, name=None):
         doc_ref = self.db.collection("testing").document(phone)
         if not doc_ref.get().exists:
             data = {
@@ -76,12 +76,13 @@ class Database:
                 "id": chat_id,
                 "phone": phone,
                 "name": name,
-                "whatsapp_messages": [],
-                "call_transcripts": []
+                "message": [], 
+                "call_transcripts": [],
+                "voice_attempts": 0,
+                "message_attempts": 0  
             }
             self.db.collection("testing").document(phone).set(data)
-
-        return self.db.collection("testing").document(phone)
+        return doc_ref
 
     def payload(self, name: str, text, time):
         msg = {
@@ -93,16 +94,41 @@ class Database:
     def add_convo(self, ref, agent, msg):
         if agent == 'voice':
             ref.update({"call_transcripts": firestore.ArrayUnion([msg])})
-        elif agent == 'whatsapp':
-            ref.update({"whatsapp_messages": firestore.ArrayUnion([msg])})
+        elif agent == 'message': 
+            ref.update({"message": firestore.ArrayUnion([msg])})
+        else:
+            raise Exception('Invalid Agent')
+
+    def increment_attempts(self, ref, agent):
+        if agent == 'voice':
+            ref.update({"voice_attempts": firestore.Increment(1)})
+        elif agent == 'message':  
+            ref.update({"message_attempts": firestore.Increment(1)})
+        else:
+            raise Exception('Invalid Agent')
+
+    def get_attempts(self, ref, agent):
+        doc = ref.get().to_dict()
+        if agent == 'voice':
+            return doc.get('voice_attempts', 0)
+        elif agent == 'message':  
+            return doc.get('message_attempts', 0)
+        else:
+            raise Exception('Invalid Agent')
+
+    def reset_attempts(self, ref, agent):
+        if agent == 'voice':
+            ref.update({"voice_attempts": 0})
+        elif agent == 'message':  
+            ref.update({"message_attempts": 0})
         else:
             raise Exception('Invalid Agent')
 
     def get_convo(self, ref, agent):
         if agent == 'voice':
             conversation = ref.get().to_dict()['call_transcripts']
-        elif agent == 'whatsapp':
-            conversation = ref.get().to_dict()['whatsapp_messages']
+        elif agent == 'message':  
+            conversation = ref.get().to_dict()['message']
         else:
             raise Exception('Invalid Agent')
 
