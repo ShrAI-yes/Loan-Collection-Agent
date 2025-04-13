@@ -39,7 +39,7 @@ class UserData:
 
     def fetch_user(self,phone_no):
         try:
-            if phone_no in self.Data['Mobile_No'].values:
+            if int(phone_no) in self.Data['Mobile_No'].values:
                 user_data = self.Data.loc[self.Data['Mobile_No'] == phone_no][self.important_fields]
                 user_info = {
                     "first_name": user_data['F_Name'].item(),
@@ -64,7 +64,7 @@ class UserData:
             else:
                 print('User does not exist.')
                 return {"Error": "User does not exist."}
-        except KeyError as e:
+        except (KeyError,TypeError) as e:
             print('Such a Phone Number does not exist in the File.')
 
     def fetch_info(self,query):
@@ -74,7 +74,10 @@ class UserData:
 class Database:
     def __init__(self):
         self.cred = credentials.Certificate("./predixion-145c5-firebase-adminsdk-fbsvc-67522dea10.json")
-        firebase_admin.initialize_app(self.cred)
+        try:
+            firebase_admin.initialize_app(self.cred)
+        except ValueError as e:
+            print('Firebase App already Initialized')
         self.db = firestore.client()
 
     def init_user(self,phone: str, wa_id=None, chat_id=None, name=None):

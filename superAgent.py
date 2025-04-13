@@ -3,10 +3,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import ToolMessage, HumanMessage, SystemMessage, AIMessage
 from langchain.tools import tool
 
-from context_manager import UserData
+from context_manager import UserData, Database
 
 class SuperAgent:
-    def __init__(self,preference):
+    def __init__(self):
         self.llm = ChatMistralAI(
             model="mistral-large-latest",
             temperature=0,
@@ -14,8 +14,18 @@ class SuperAgent:
             api_key="87du8i9QPYZVhsToktC9HxXP0yrjhdjQ"
         )
 
+        self.summarizer = ChatMistralAI(
+            model="mistral-large-latest",
+            temperature=0,
+            max_retries=2,
+            api_key="sncMb85oMWAhfO32oQaYFT3HjpF307sW"
+        )
+
         self.twillio_api='' #for connecting to voice agent
         self.meta_api='' #for connecting to whatsapp agent
+
+        self.client = Database()
+        self.file = UserData()
 
         whatsapp_agent = tool(self.whatsapp_agent)
         voice_agent = tool(self.voice_agent)
@@ -25,9 +35,15 @@ class SuperAgent:
             "voice_agent": voice_agent
         }
 
-        self.preference = preference
+        self.preference = 'call' #temporaryily added to prevent unpredictable behavior of LLM
 
-        template = f"""You are an intelligent decision making model. 
+        summary_template = """You are a simple chat conversation summarizer. 
+        Summarize the given chat conversation which is provided in JSON format.
+        If the chat conversation is blank return "" as response 
+        Mention important details in the summary which can be used by a LLM as context.
+        """
+
+        decision_template = f"""You are an intelligent decision making model. 
         You have to use my response to decide between using either the 'whatsapp_agent' or the 'voice_agent'.
         If my response does not mention any preference for the agent use this preference: {self.preference}
         
@@ -44,19 +60,41 @@ class SuperAgent:
         -If my response explicitly mentions that I prefer to be messaged.
         """
         template_messages = [
-            SystemMessage(content=template),
+            SystemMessage(content=decision_template),
             ("human", "{response}")
-            # HumanMessage(content="{query}")
         ]
-        self.prompt_template = ChatPromptTemplate.from_messages(template_messages)
+        self.decision_prompt_template = ChatPromptTemplate.from_messages(template_messages)
+
+        template_messages = [
+            SystemMessage(content=summary_template),
+            ("human", "{conversation}")
+        ]
+        self.summary_prompt_template = ChatPromptTemplate.from_messages(template_messages)
 
     def read_document(self, file_name):
-        file = UserData()
-        file.read_file(file_name)
-        self.all_user_data = file.Data
+        self.file.read_file(file_name)
+        self.all_user_data = self.file.Data
+
+    def generate_summary(self,phone):
+        uri = self.client.init_user(phone=str(phone))
+        whatsapp_convo = self.client.get_convo(ref=uri, agent='whatsapp')
+        voice_convo = self.client.get_convo(ref=uri, agent='voice')
+
+        message = self.summary_prompt_template.format_messages(conversation=whatsapp_convo)
+        whatsapp_context = self.summarizer.invoke(message)
+
+        message = self.summary_prompt_template.format_messages(conversation=voice_convo)
+        voice_context = self.summarizer.invoke(message)
+
+        return whatsapp_context.content, voice_context.content
+
+    def agent_context(self,phone):
+        customer_data = self.file.fetch_user(phone_no=phone)
+        customer_data['whatsapp_summary'], customer_data['call_summary'] = self.generate_summary(phone=phone)
+        return customer_data
 
     def decide_agent(self, response):
-        messages = self.prompt_template.format_messages(response=response)
+        messages = self.decision_prompt_template.format_messages(response=response)
         decision = self.arbiter.invoke(messages)
         agent = decision.additional_kwargs['tool_calls'][0]['function']['name']
         if agent == 'whatsapp_agent':

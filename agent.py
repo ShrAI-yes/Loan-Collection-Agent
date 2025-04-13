@@ -1,10 +1,9 @@
 from db_search import get_info
-from context_manager import UserData
+from context_manager import Database
 
 import time, datetime, pytz
 import asyncio
 import nest_asyncio
-
 
 from httpx import HTTPStatusError
 
@@ -16,22 +15,23 @@ nest_asyncio.apply()
 
 from superAgent import SuperAgent
 
-class Agent(SuperAgent):
-    def __init__(self, phone):
+class Agent():
+    def __init__(self, agent, context):
+        self.phone = int(context['phone_no'])
 
-        super().__init__(preference) #Inherit Super Agent
-
-        self.phone = int(phone)
+        self.agent = agent      #Either "voice" or "whatsapp"
         self.llm = ChatMistralAI(
             model="mistral-large-latest",
             temperature=0,
             max_retries=100,
             api_key="87du8i9QPYZVhsToktC9HxXP0yrjhdjQ"
         )
+        self.db_client = Database()
+        self.uri = self.db_client.init_user(phone=str(self.phone))
 
-        self.filedata = UserData()
-        self.filedata.read_file('indian_borrowers_dataset_latest.csv')
-        self.user = self.filedata.fetch_user(phone_no=int(self.phone))
+        self.user = {key: value for key, value in context.items() if key not in ('whatsapp_summary', 'call_summary')}
+        self.whatsapp_context = context['whatsapp_summary']
+        self.voice_context = context['call_summary']
 
         get_user_data = tool(self.get_user_data)
         current_date_time = tool(self.current_date_time)
@@ -109,9 +109,11 @@ class Agent(SuperAgent):
         7. Avoid unnecessary remarks and repetitive phrases.
         8. If the customer is unwilling to pay, handle it gracefully and suggest alternatives.
         9. Wrap up efficiently without dragging the conversation.
+        
+        Conversation summary from WhatsApp messages:{self.whatsapp_context}
+        
+        Conversation summary from Voice Call:{self.voice_context}
         """
-        #Previous conversation summary:{conversation}
-        #"""
         template_messages = [
             SystemMessage(content=template),
             MessagesPlaceholder(variable_name="chat_history"),
@@ -155,14 +157,36 @@ class Agent(SuperAgent):
         return ai_says.content
 
     def chat(self, text: str) -> str:
+        msg_packet = self.db_client.payload(
+            name = f"{self.user['first_name']} {self.user['last_name']}",
+            text = text,
+            time = str(datetime.datetime.now())
+        )
+        self.db_client.add_convo(
+            ref=self.uri,
+            agent=self.agent,
+            msg=msg_packet
+        )
+
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
+        res = loop.run_until_complete(self.tool_response(text))
 
-        # Run the async_chat coroutine in the current loop using run_until_complete.
-        return loop.run_until_complete(self.tool_response(text))
+        msg_packet = self.db_client.payload(
+            name = 'Agent',
+            text = res,
+            time = str(datetime.datetime.now())
+        )
+        self.db_client.add_convo(
+            ref=self.uri,
+            agent=self.agent,
+            msg=msg_packet
+        )
+
+        return res
 
     def say(self, text: str):
         ai_says = AIMessage(content=text)
