@@ -1,12 +1,8 @@
-#Voice Agent with Livekit CLI 
-NOTE: Telephony Integration with Twillio is not present. The Phone Number is hard-coded in the code-file and needs to be changed to your phone number.
+# Voice Agent with Livekit Telephony Integration 
 
-By running the [livekit_test.py](https://github.com/ShrAI-yes/Loan-Collection-Agent/blob/Livekit/livekit_test.py) file the Voice Agent will run in your Console Window using your system Microphone. 
-
+This is a stand-alone Livekit Voice Agent integrated with Twillio.
 
 ---
-
-
 
 # How To Run Voice Agent Pipeline
 
@@ -28,11 +24,12 @@ Keys to include:
 ### 4. Add your details in CSV
 * Add your details in the [borrower.csv](https://github.com/ShrAI-yes/Loan-Collection-Agent/blob/Livekit/borrower.csv) file in user_files/ directory
 
-### 5. Change the Phone Number in [livekit_test.py](https://github.com/ShrAI-yes/Loan-Collection-Agent/blob/Livekit/livekit_test.py). 
-* Phone number needs to be changed in 2 lines. I have commented where to change them.
+### 5. Change the Phone Number in [job_dispatch.py](https://github.com/ShrAI-yes/Loan-Collection-Agent/blob/Livekit/job_dispatch.py). 
+* Change the 'phone_no' variable to your 10-digit phone number to get Voice Agent call on your phone.   
+* Save the file
 
 ### 6. Run the File
-* In command prompt, activate the environment and then run 'python livekit_test.py console'.
-* The Agent will intitalize (approx. 10s) and then start talking with you.
+* In command prompt, activate the environment and then run 'python livekit_test.py dev'. This will initialize the Voice Agent and wait to recieve Livekit Job Requests.
+* Seperately run the 'job_dispatch.py' file. This will send a Job Request along with your details to the running Voice Agent instance and initiate the call.
 
 
