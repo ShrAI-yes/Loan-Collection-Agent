@@ -1,4 +1,7 @@
+import time
+
 from langchain_mistralai import ChatMistralAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import ToolMessage, HumanMessage, SystemMessage, AIMessage
 from langchain.tools import tool
@@ -11,14 +14,15 @@ class SuperAgent:
             model="mistral-large-latest",
             temperature=0,
             max_retries=2,
-            api_key="87du8i9QPYZVhsToktC9HxXP0yrjhdjQ"
+            api_key="lSkg39BPClUnCXsloWHdoMUGp75f4el5"
         )
 
         self.summarizer = ChatMistralAI(
             model="mistral-large-latest",
+            max_tokens=4096,
             temperature=0,
-            max_retries=2,
-            api_key="Wh54ZLkuSLHOwx6sKk90Rspn4eyIAqdj"
+            max_retries=10,
+            api_key="VS4P743v31nDWbgUcwy3MJJ9zWk5mt1V"
         )
 
         self.twillio_api='' #for connecting to voice agent
@@ -80,11 +84,14 @@ class SuperAgent:
         whatsapp_convo = self.client.get_convo(ref=uri, agent='whatsapp')
         voice_convo = self.client.get_convo(ref=uri, agent='voice')
 
-        message = self.summary_prompt_template.format_messages(conversation=whatsapp_convo)
-        whatsapp_context = self.summarizer.invoke(message)
-
-        message = self.summary_prompt_template.format_messages(conversation=voice_convo)
-        voice_context = self.summarizer.invoke(message)
+        try:
+            message = self.summary_prompt_template.format_messages(conversation=whatsapp_convo)
+            whatsapp_context = self.summarizer.invoke(message)
+            time.sleep(1)
+            message = self.summary_prompt_template.format_messages(conversation=voice_convo)
+            voice_context = self.summarizer.invoke(message)
+        except Exception as e:
+            print(e)
 
         return whatsapp_context.content, voice_context.content
 

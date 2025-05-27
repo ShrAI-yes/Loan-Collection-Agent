@@ -122,4 +122,5 @@ class Database:
             if 'timestamp' in msg:
                 del msg['timestamp']
 
-        return conversation
+        latest_conversation = conversation[-5:]  # Slicing the list
+        return latest_conversation
