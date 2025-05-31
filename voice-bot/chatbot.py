@@ -1,7 +1,6 @@
 #this script is a speech enabled chatbot that interacts with the user to provide information about their loan and answer financial queries
 #the user can speak or write their queries and the bot will respond accordingly
 #the bot will only respond in text format 
-#THIS SCRIPT IS A STANDALONE SCRIPT
 
 import json
 import datetime
@@ -18,7 +17,7 @@ llm = ChatMistralAI(
     model="codestral-2501",
     temperature=0,
     max_retries=100,
-    api_key="your_api_key"
+    api_key="r2laTLGuoa4V7Lm5onLICJf942bSlEJs"
 )
 
 def speech_to_text():

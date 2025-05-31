@@ -2,3 +2,6 @@
 __pycache__
 voice-bot/agent
 voice-bot/.env
+conversational-ai-ab55c-firebase-adminsdk-fbsvc-9bb25ff857.json
+whatsapp-server/node_modules
+whatsapp-server/.env

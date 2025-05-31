@@ -4,7 +4,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import io from "socket.io-client";
 import Borrower from "./Borrower.jsx";
 
-const socket = io("https://0110-103-48-101-59.ngrok-free.app", { transports: ["websocket"] });
+const socket = io("https://fdf5-103-185-11-75.ngrok-free.app", { transports: ["websocket"] });
 
 const App = () => {
   const [file, setFile] = useState(null);
@@ -33,7 +33,7 @@ const App = () => {
     formData.append("file", selectedFile);
 
     try {
-      const response = await fetch("https://0110-103-48-101-59.ngrok-free.app/upload-csv", {
+      const response = await fetch("https://fdf5-103-185-11-75.ngrok-free.app/upload-csv", {
         method: "POST",
         body: formData,
       });

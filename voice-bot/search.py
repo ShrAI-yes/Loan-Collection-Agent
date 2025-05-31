@@ -15,7 +15,7 @@ llm = ChatMistralAI(
     model="codestral-2501",
     temperature=0,
     max_retries=100,
-    api_key="api_key"
+    api_key="r2laTLGuoa4V7Lm5onLICJf942bSlEJs"
 )
 
 embedder = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
