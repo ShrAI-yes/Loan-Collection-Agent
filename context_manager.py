@@ -21,14 +21,14 @@ class UserData:
 
     def read_file(self,file_name):
         self.file_path = os.path.join(self.dir_path, file_name)
-        self.file_extension = os.path.splitext(self.file_path)[1]
-        if self.file_extension == '.csv':
+        file_extension = os.path.splitext(self.file_path)[1]
+        if file_extension == '.csv':
             try:
                 self.Data = pd.read_csv(self.file_path)
             except FileNotFoundError as e:
                 print(f"I dont think the file '{file_name}' exists. Did you add it in the 'user_files' directory?")
 
-        elif self.file_extension == '.pdf':
+        elif file_extension == '.pdf':
             docs = rag.load_dir(self.file_path)
             ids, texts, metadata = rag.chunking(docs)
             rag.embed_chunks(ids, texts, metadata)
@@ -39,7 +39,8 @@ class UserData:
 
     def fetch_user(self,phone_no):
         try:
-            if int(phone_no) in self.Data['Mobile_No'].values:
+            phone_no = int(phone_no)
+            if phone_no in self.Data['Mobile_No'].values:
                 user_data = self.Data.loc[self.Data['Mobile_No'] == phone_no][self.important_fields]
                 user_info = {
                     "first_name": user_data['F_Name'].item(),
@@ -65,7 +66,8 @@ class UserData:
                 print('User does not exist.')
                 return {"Error": "User does not exist."}
         except (KeyError,TypeError) as e:
-            print('Such a Phone Number does not exist in the File.')
+            print(f'Such a Phone Number does not exist in {self.file_path}')
+            return {}
 
     def fetch_info(self,query):
         result = rag.fetch_query(query)
@@ -95,7 +97,7 @@ class Database:
 
         return self.db.collection("testing").document(phone)
 
-    def payload(self, name: str, text, time):
+    def payload(self, name, text, time):
         msg = {
             f"{name}": str(text),
             "timestamp": time
@@ -104,9 +106,9 @@ class Database:
 
     def add_convo(self, ref, agent, msg):
         if agent == 'voice':
-            ref.update({"call_transcripts": firestore.ArrayUnion([msg])})
+            ref.update({"call_transcripts": firestore.ArrayUnion(msg)})
         elif agent == 'whatsapp':
-            ref.update({"whatsapp_messages": firestore.ArrayUnion([msg])})
+            ref.update({"whatsapp_messages": firestore.ArrayUnion(msg)})
         else:
             raise Exception('Invalid Agent')
 
@@ -122,5 +124,5 @@ class Database:
             if 'timestamp' in msg:
                 del msg['timestamp']
 
-        latest_conversation = conversation[-5:]  # Slicing the list
+        latest_conversation = conversation[-10:]  # Slicing the list
         return latest_conversation

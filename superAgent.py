@@ -1,4 +1,7 @@
 import time
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 from langchain_mistralai import ChatMistralAI
 from langchain_groq import ChatGroq
@@ -22,7 +25,7 @@ class SuperAgent:
             max_tokens=4096,
             temperature=0,
             max_retries=10,
-            api_key="VS4P743v31nDWbgUcwy3MJJ9zWk5mt1V"
+            api_key="A2szsJ1jllMb7cfu66WjErjobj1i1EqZ"
         )
 
         self.twillio_api='' #for connecting to voice agent
@@ -43,7 +46,7 @@ class SuperAgent:
 
         summary_template = """You are a simple chat conversation summarizer. 
         Summarize the given chat conversation which is provided in JSON format.
-        If the chat conversation is blank return "" as response 
+        If the chat conversation is blank return "No prior conversation occurred." as response 
         Mention important details in the summary which can be used by a LLM as context.
         """
 
@@ -83,6 +86,7 @@ class SuperAgent:
         uri = self.client.init_user(phone=str(phone))
         whatsapp_convo = self.client.get_convo(ref=uri, agent='whatsapp')
         voice_convo = self.client.get_convo(ref=uri, agent='voice')
+        print(f'Fetched Conversation')
 
         try:
             message = self.summary_prompt_template.format_messages(conversation=whatsapp_convo)
@@ -90,10 +94,10 @@ class SuperAgent:
             time.sleep(1)
             message = self.summary_prompt_template.format_messages(conversation=voice_convo)
             voice_context = self.summarizer.invoke(message)
+            return whatsapp_context.content, voice_context.content
         except Exception as e:
             print(e)
-
-        return whatsapp_context.content, voice_context.content
+            return "No prior conversation occurred.","No prior conversation occurred."
 
     def agent_context(self,phone):
         customer_data = self.file.fetch_user(phone_no=phone)
