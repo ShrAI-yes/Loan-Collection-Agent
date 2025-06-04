@@ -1,0 +1,4 @@
+.env 
+*.key 
+__pycache__/ 
+backend/streamlit_app/conversational-ai-ab55c-firebase-adminsdk-fbsvc-e19783f081.json
