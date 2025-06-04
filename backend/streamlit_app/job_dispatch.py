@@ -51,7 +51,7 @@ async def create_explicit_dispatch(customer_phone : int):
         empty_timeout=30,
         max_participants=2,
     ))
-    print(f"[DEBUG] Room created: {room}")  # DEBUG
+    # print(f"[DEBUG] Room created: {room}")  # DEBUG
 
     print("[DEBUG] Creating agent dispatch...")  # DEBUG
 
@@ -75,15 +75,28 @@ async def create_explicit_dispatch(customer_phone : int):
 #--------------------Use Case: Change the 'customer_phone= 10-digit phone number' in main function--------------------------#
 # if __name__ == '__main__':
 #     asyncio.run(create_explicit_dispatch(customer_phone=7208303007))
+
+# if __name__ == '__main__':
+#     if len(sys.argv) < 2:
+#         print("Error: Phone number not provided.")
+#         sys.exit(1)
+
+#     try:
+#         phone = int(sys.argv[1])  # Convert argument to integer
+#     except ValueError:
+#         print("Invalid phone number format.")
+#         sys.exit(1)
+
+#     asyncio.run(create_explicit_dispatch(customer_phone=phone))
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Error: Phone number not provided.")
         sys.exit(1)
 
     try:
-        phone = int(sys.argv[1])  # Convert argument to integer
+        phone = sys.argv[1]  # Get phone from command line
+        asyncio.run(create_explicit_dispatch(customer_phone=int(float(phone))))  # Handle scientific notation
     except ValueError:
         print("Invalid phone number format.")
         sys.exit(1)
-
-    asyncio.run(create_explicit_dispatch(customer_phone=phone))

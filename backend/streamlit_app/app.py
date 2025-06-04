@@ -77,10 +77,11 @@ with col1:
 
         df = read_borrowers("user_files/borrower.csv")
         st.session_state["borrowers"] = df
+        
         selected = st.selectbox(
             "Select Borrower",
             df.itertuples(),
-            format_func=lambda row: f"{row.Name} (+91{row.Phone})"
+            format_func=lambda row: f"{row.Name} : {int(row.Phone)}"
         )
     else:
         selected = None
@@ -89,7 +90,7 @@ with col2:
     st.header("📋 Borrower Details")
     if selected:
         st.markdown(f"**Name:** {selected.Name}")
-        st.markdown(f"**Phone:** +91{selected.Phone}")
+        st.markdown(f"**Phone:** +91 {selected.Phone}")
         st.markdown(f"**Preference:** {selected.Preference}")
         st.markdown(f"**Loan Amount:** ₹{selected._3}")
 
