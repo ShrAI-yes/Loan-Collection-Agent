@@ -39,8 +39,6 @@ async def create_explicit_dispatch(customer_phone : int):
         'call_summary': user_info['call_summary'],
     }
 
-    print(f'Metadata Ready: {metadata}')
-
     lkapi = api.LiveKitAPI(
         url=LIVEKIT_URL,
         api_key=LIVEKIT_API_KEY,
