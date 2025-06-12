@@ -27,13 +27,19 @@ async def create_explicit_dispatch(customer_phone : int):
         'first_name': user_info['first_name'],
         'last_name': user_info['last_name'],
         'balance_to_pay': user_info['balance_to_pay'],
-        'start_date': user_info['start_date'],
-        'last_date': user_info['last_date'],
         'installment': user_info['installment'],
+        'due_date': '2025-06-15',
+        'pending_days': '10',
+        'outstanding_amount': user_info['balance_to_pay'],
+        'minimum_due_amount': '1000',
+        'late_fees': '500',
+        'interest_rate': user_info['interest_rate'],
+        'emi_eligible': 'True',
         'whatsapp_summary': user_info['whatsapp_summary'],
-        'call_summary': user_info['call_summary']
+        'call_summary': user_info['call_summary'],
     }
-    print(metadata)
+
+    print(f'Metadata Ready: {metadata}')
 
     lkapi = api.LiveKitAPI(
         url=LIVEKIT_URL,

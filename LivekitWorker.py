@@ -13,17 +13,26 @@ from context_manager import UserData, Database
 
 from livekit import agents, api
 from livekit.agents import (
-    Agent,
     AgentSession,
+    Agent,
     ChatMessage,
     ChatContext,
     function_tool,
     get_job_context,
     JobContext,
+    metrics,
+    MetricsCollectedEvent,
     RunContext,
     WorkerOptions
 )
-from livekit.agents import RoomInputOptions
+
+from livekit.agents.metrics import (
+    LLMMetrics,
+    STTMetrics,
+    TTSMetrics,
+    EOUMetrics
+)
+
 from livekit.plugins import (
     groq,
     elevenlabs,
@@ -42,31 +51,106 @@ ELEVENLABS_API_KEY = os.getenv("ELEVEN_API_KEY")
 
 
 class VoiceAgent(Agent):
-    def __init__(self, customer_phone, chat_ctx: ChatContext) -> None:
-        self.customer_phone = customer_phone
+    def __init__(self, metadata, chat_ctx: ChatContext) -> None:
+        self.context = metadata
+        self.customer_phone = self.context['phone'][3:]
+
+        due_date = self.context['due_date']
+        pending_days = self.context['pending_days']
+        outstanding_amount = self.context['outstanding_amount']
+        minimum_due_amount = self.context['minimum_due_amount']
+        late_fees = self.context['late_fees']
+        interest_rate = self.context['interest_rate']
+        emi_eligible = self.context['emi_eligible']
+
         super().__init__(
-            instructions="""
-            You are a professional and friendly FEMALE credit card payment assistant from Predixion AI named Riya. 
-            Your job is to help customers understand their outstanding balance, send reminders for upcoming payments, 
-            offer repayment options to eligible customers, and ensure a smooth repayment experience while maintaining a polite and empathetic tone.
-
-            ***Response Generation Rules***
-            - Generate conversational responses in simple Hindi or English according to the customer's input language.
-            - Generate responses in a single line without any line breaks.
-            - Responses should NOT contain abbreviations. Use full forms of all words. 
-
-            ### Rules of Communication:
-            1. Maintain a polite, non-confrontational, and empathetic tone.
-            2. Keep response to the point—avoid long-winded explanations.
-            3. Do not repeat sentences or the customer’s responses.
-            4. Provide only verified information—do not speculate or assume.
-            5. Protect customer privacy—never share details with anyone else.
-            6. Keep the conversation goal-focused: payment confirmation, assistance, and smooth closing.
-            7. Avoid unnecessary remarks and repetitive phrases.
-            8. If the customer is unwilling to pay, handle it gracefully and suggest alternatives.
-            9. Wrap up efficiently without dragging the conversation.
-            """,
             chat_ctx=chat_ctx,
+            instructions=f"""
+            **Identity**
+            You are a female professional credit card payment management executive.
+            Your primary responsibility is to assist customers with understanding their loan details,
+            provide helpful reminders about upcoming payments, and ensure a smooth repayment experience.
+    
+            **Context**
+            You are calling customers of a credit card company to remind them of their outstanding balance and minimum due amount.
+            The goal is to obtain a promise-to-pay date and amount from willing customers, and to persuade unwilling customers to make payment.
+            You may provide EMI offers to eligible customers. Communication should be adjusted based on number of days left for due date.
+            Do not invent information. Only answer questions related to this context.
+    
+            ***Main Conversation Tasks***
+            1. Greet customer and confirm identity.
+            2. Remind of outstanding balance, minimum due, due date.
+            3. If willing to pay → capture promise-to-pay.
+            4. If unwilling → persuade to pay minimum → capture promise-to-pay.
+            5. If still unwilling → capture reason → offer EMI if eligible.
+            6. End call with proper summary of commitment or reason.
+    
+            ***Conversation Flow to Follow***
+            1. Customer Identity Confirmation
+            - If yes → Proceed.
+            - If wrong number → "माफ़ कीजिए!" → End call.
+            - If busy/unavailable → "धन्यवाद। मैं वापस कॉल करूँगी।" → End call.
+    
+            2. Payment Reminder
+            "आपके क्रेडिट कार्ड के payment की ड्यू डेट {due_date} है। अभी {pending_days} दिन बाकी हैं। कृपया {outstanding_amount} रुपये समय पर clear करें।"
+    
+            3. Willing to Pay Full Amount
+            "मैं आपके account को अपडेट करूँगी कि आप {outstanding_amount} रुपये का payment {due_date} से पहले ऐप के जरिए करेंगे, क्या यह सही है?"
+            - If yes → End call.
+            - If no → Proceed to 4.
+    
+            4. Unwilling to Pay Full
+            "समझ सकती हूँ कि आप पूरा payment नहीं कर पा रहे हैं, लेकिन कृपया कम से कम minimum amount {minimum_due_amount} रुपये का payment करें ताकि लेट फीस से बच सकें और आपकी क्रेडिट हिस्ट्री भी affect न हो।"
+            - If agrees → "मैं आपके account को अपडेट करूँगी कि आप minimum amount {minimum_due_amount} रुपये {due_date} से पहले ऐप के जरिए करेंगे।" → End call.
+            - If no → Proceed to 5.
+    
+            5. Unwilling to Pay Any Amount
+            "आपको पेमेंट करने में क्या problem है?"
+            - If EMI eligible: "आपके account में EMI का option है। क्या आप इसे लेना चाहेंगे?"
+            -- If yes → "मैं आपके account को अपडेट करूँगी कि आप EMI का option choose करने में interested हैं। लेकिन फिर भी आप minimum due amount {minimum_due_amount} रुपये जल्द से जल्द clear करें ताकि आपकी क्रेडिट हिस्ट्री affect न हो।" → End call.
+            - If EMI not eligible and asked:
+            -- "Unfortunately, इस समय EMI option आपके लिए उपलब्ध नहीं है। लेकिन आप payment करने के लिए दूसरे options को देखें ताकि लेट फीस और interest चार्जेस से बच सकें।" → End call.
+    
+            6. Call Closing
+            - Summarize the customer's commitment.
+            - Trigger 'end_call' function.
+    
+            **Response Generation and Language Guidelines**
+            - Use conversational Hindi with urban tone (Delhi, Mumbai, Jaipur, Pune).
+            - Rephrase statements naturally to avoid repetition.
+            - Speak dates and numbers accurately in Hindi.
+            - Do not perform or speak date calculations to customer.
+            - Naturally mix common English words (loan, payment, business, interest, income).
+            - Use colloquial Hindi, not formal Hindi.
+            - Use 'दशमलव' for Interest.
+            - Speak Rupees and Paise properly.
+            - Use natural fillers ('Ok', 'हाँ', 'अच्छा', 'ठीक है') after customer responses.
+            - Keep responses short and goal-focused.
+            - Do not speculate or disclose unverified information.
+            - Protect customer privacy.
+            - Generate responses in simple Hindi
+            - Generate responses in a single line without line breaks.
+            - Do NOT use abbreviations. Write full words.
+    
+            **Common Customer Question Answers**
+            - Are you a robot? → "नहीं"
+            - Is MAD required under EMI? → "Yes"
+            - Is GST applicable on credit card default? → "Yes"
+            - Is GST applicable on EMI interest? → "Yes"
+            - Can you tell EMI interest or monthly payment? → "We will get back to you with details."
+            - What is my due date? → {due_date}
+            - What is current date? → Use 'current_date_time' function to get 'date' 
+            - What are pending days? → {pending_days}
+            - What is my late fees? → Rs.{late_fees}
+            - What is interest rate? → {interest_rate}
+            - Am I eligible for EMI? → {emi_eligible}
+            - What is my outstanding amount? → Rs.{outstanding_amount}
+            - What is my minimum due amount? → Rs.{minimum_due_amount}
+            - Where are you calling from? → "One Card"
+            - Can I pay using net banking? → "No, payment can be done through app only. If you need any assistance, we can arrange a call back and end the call."
+            - How can I make payment? → "You can make the payment through app."
+            """,
+
             stt=deepgram.STT(
                 model="nova-3",
                 smart_format=True,
@@ -79,7 +163,7 @@ class VoiceAgent(Agent):
                 api_key=GROQ_API_KEY
             ),
             tts=elevenlabs.TTS(
-                voice_id="KYiVPerWcenyBTIvWbfY",
+                voice_id="mfMM3ijQgz8QtMeKifko",
                 model="eleven_multilingual_v2",
                 api_key=ELEVENLABS_API_KEY
             ),
@@ -95,10 +179,10 @@ class VoiceAgent(Agent):
 
         for chat in room_chat[::-1]:
             if chat.role == 'assistant':
-                print(f'Agent said: {chat.content[0]}')
+                logger.info(f'Agent said: {chat.content[0]}')
                 break
 
-        print(f"User said: {new_message.text_content}")
+        logger.info(f"User said: {new_message.text_content}")
 
     async def hangup(self):
 
@@ -146,7 +230,7 @@ class VoiceAgent(Agent):
 
         """Called when the user wants to end the call or mentions that you have called the wrong person."""
 
-        logger.info(f"Ending the call")
+        logger.info(f"\n------------------Ending the call/ Terminating Room---------------------\n")
 
         current_speech = ctx.session.current_speech
         if current_speech:
@@ -161,9 +245,7 @@ async def entrypoint(ctx: JobContext):
 
     first_name = metadata['first_name']
     last_name = metadata['last_name']
-    balance_to_pay = metadata['balance_to_pay']
-    start_date = metadata['start_date']
-    last_date = metadata['last_date']
+    outstanding_amount = metadata['outstanding_amount']
     installment = metadata['installment']
     wa_summary = metadata['whatsapp_summary']
     call_summary = metadata['call_summary']
@@ -178,7 +260,7 @@ async def entrypoint(ctx: JobContext):
         role='system',
         content=f"""
             You are talking to our customer named {first_name} {last_name}.
-            They have a total outstandiing loan repayment balance of Rupees {balance_to_pay}.
+            They have a total outstandiing loan repayment balance of Rupees {outstanding_amount}.
             According to their agreement they need to pay Rupees {installment} as monthly installment.
             
             Here are the previous conversation summaries with the customer on WhatsApp and Phone Call.
@@ -190,7 +272,7 @@ async def entrypoint(ctx: JobContext):
     """
     )
 
-    agent = VoiceAgent(customer_phone=phone[3:] ,chat_ctx=initial_ctx)
+    agent = VoiceAgent(metadata=metadata,chat_ctx=initial_ctx)
 
     await ctx.connect()
 
@@ -202,6 +284,21 @@ async def entrypoint(ctx: JobContext):
         turn_detection='stt',
         allow_interruptions=True
     )
+
+    session_monitor = metrics.UsageCollector()
+
+    @session.on("metrics_collected")
+    def _on_metrics_collected(ev: MetricsCollectedEvent):
+        if isinstance(ev.metrics, LLMMetrics):
+            print(f'LLM Metrics: {ev.metrics}')
+        elif isinstance(ev.metrics, STTMetrics):
+            print(f'STT Metrics: {ev.metrics}')
+        elif isinstance(ev.metrics, TTSMetrics):
+            print(f'TTS Metrics: {ev.metrics}')
+        elif isinstance(ev.metrics, EOUMetrics):
+            print(f'EOU Metrics: {ev.metrics}')
+        else:
+            pass
 
     async def store_history():
         chat_history = session.history.to_dict()
@@ -224,7 +321,12 @@ async def entrypoint(ctx: JobContext):
 
         await session.aclose()
 
+    async def get_metrics():
+        metrics_summary = session_monitor.get_summary()
+        print(f"Metrics: \n{metrics_summary}")
+
     ctx.add_shutdown_callback(store_history)
+    ctx.add_shutdown_callback(get_metrics)
 
     session_started = asyncio.create_task(
         session.start(
@@ -237,7 +339,7 @@ async def entrypoint(ctx: JobContext):
         await ctx.api.sip.create_sip_participant(
             api.CreateSIPParticipantRequest(
                 room_name=ctx.room.name,
-                sip_trunk_id='ST_CEYX8ZcDyouJ',
+                sip_trunk_id='ST_udiSagMKGZKr',
                 sip_call_to=phone,
                 participant_identity=customer,
                 wait_until_answered=True
