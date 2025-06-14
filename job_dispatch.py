@@ -1,7 +1,7 @@
 
 import os
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 import asyncio
 import numpy as np
@@ -28,13 +28,13 @@ async def create_explicit_dispatch(customer_phone : int):
         'last_name': user_info['last_name'],
         'balance_to_pay': user_info['balance_to_pay'],
         'installment': user_info['installment'],
-        'due_date': '2025-06-15',
-        'pending_days': '10',
+        'due_date': user_info['due_date'],
+        'pending_days': user_info['pending_days'],
         'outstanding_amount': user_info['balance_to_pay'],
-        'minimum_due_amount': '1000',
-        'late_fees': '500',
+        'minimum_due_amount': user_info['minimum_due_amount'],
+        'late_fees': user_info['late_fees'],
         'interest_rate': user_info['interest_rate'],
-        'emi_eligible': 'True',
+        'emi_eligible': user_info['emi_eligible'],
         'whatsapp_summary': user_info['whatsapp_summary'],
         'call_summary': user_info['call_summary'],
     }

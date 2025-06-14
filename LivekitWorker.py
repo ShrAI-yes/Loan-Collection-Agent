@@ -1,3 +1,5 @@
+
+#In-built Python Libraries____________________________________
 import logging
 logger = logging.getLogger("voice-agent")
 logger.setLevel(logging.INFO)
@@ -7,10 +9,13 @@ import datetime, pytz
 import asyncio
 import os
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
+# Custom made Libraries________________________________________
 from context_manager import UserData, Database
+from LogMetrics import serialize_metrics, save_to_file
 
+# Livekit Agent Libraries______________________________________
 from livekit import agents, api
 from livekit.agents import llm, metrics, function_tool, get_job_context
 
@@ -25,6 +30,7 @@ from livekit.agents import (
     WorkerOptions
 )
 
+#Livekit Metrics Libraries_______________________________________
 from livekit.agents.metrics import (
     LLMMetrics,
     STTMetrics,
@@ -32,6 +38,7 @@ from livekit.agents.metrics import (
     EOUMetrics
 )
 
+#Livekit Third_Party Plugins Libraries_______________________________
 from livekit.plugins import (
     groq,
     openai,
@@ -39,7 +46,10 @@ from livekit.plugins import (
     deepgram,
     silero
 )
+from livekit.plugins.elevenlabs import VoiceSettings
 
+
+#_________________________________________Defining the Environment Variables______________________________________
 
 LIVEKIT_URL = os.getenv('LIVEKIT_URL')
 LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY")
@@ -53,6 +63,8 @@ AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 OPENAI_API_VERSION = os.getenv("OPENAI_API_VERSION")
 
+
+#_________________________________________This class defines the Voice Agent_______________________________________
 
 class VoiceAgent(Agent):
     def __init__(self, metadata, chat_ctx: ChatContext) -> None:
@@ -229,32 +241,39 @@ class VoiceAgent(Agent):
                 ),
             ]),
             tts=elevenlabs.TTS(
-                voice_id="mfMM3ijQgz8QtMeKifko",
-                model="eleven_multilingual_v2",
+                voice_id="JNaMjd7t4u3EhgkVknn3",
+                model="eleven_turbo_v2_5",
+                voice_settings=VoiceSettings(
+                    speed=1.1,
+                    style=0,
+                    stability=0.5,
+                    use_speaker_boost=False,
+                    similarity_boost=0.8
+                ),
                 api_key=ELEVENLABS_API_KEY
             ),
             vad=silero.VAD.load(),
             turn_detection='stt',
         )
 
-    async def on_user_turn_completed(self, turn_ctx: ChatContext, new_message: ChatMessage):
 
-        """Called when the user has finished speaking and the LLM is about to respond. """
+    #This is a Livekit In-built function that has been Overridden
+    async def on_user_turn_completed(self, turn_ctx: ChatContext, new_message: ChatMessage):
+        """Called when the user has finished speaking and the LLM is about to respond. """\
 
         room_chat = turn_ctx.items
-
         for chat in room_chat[::-1]:
             if chat.role == 'assistant':
-                logger.info(f'Agent said: {chat.content[0]}')
+                #logger.info(f'Agent said: {chat.content[0]}')          #This statement prints the Agent response in console
                 break
 
-        logger.info(f"User said: {new_message.text_content}")
+        #logger.info(f"User said: {new_message.text_content}")          #This statement prints the User response in console
+
 
     async def hangup(self):
-
         """Helper function to hang up the call by deleting the room"""
 
-        logger.info(f"\n------------------Ending the call/ Terminating Room---------------------\n")
+        logger.info(f"\n\n------------------Ending the call/ Terminating Room---------------------\n\n")
 
         job_ctx = get_job_context()
         await job_ctx.api.room.delete_room(
@@ -263,11 +282,12 @@ class VoiceAgent(Agent):
             )
         )
 
+
     @function_tool()
     async def current_date_time(self, ctx: RunContext) -> dict:
-
-        """Returns the current day, date and time in JSON format."""
-
+        """
+        Returns the current day, date and time in JSON format.
+        """
         now = datetime.datetime.now()
         ist_timezone = pytz.timezone('Asia/Kolkata')
         dt_ist = now.astimezone(ist_timezone)
@@ -280,12 +300,12 @@ class VoiceAgent(Agent):
 
     @function_tool()
     async def get_user_data(self, ctx: RunContext) -> dict:
-
-        """Returns all information about the customer and their loan details in JSON format."""
-
+        """
+        Returns all information about the customer and their loan details in JSON format.
+        """
         phone_number=self.customer_phone
 
-        #Code to fetch all user details from database server based on phone number.
+        #Write code to fetch all user details from any database server based on phone number.
 
         data = UserData()
         data.read_file('borrower.csv')
@@ -295,8 +315,9 @@ class VoiceAgent(Agent):
 
     @function_tool()
     async def end_call(self, ctx: RunContext):
-
-        """Called when the user wants to end the call or mentions that you have called the wrong person."""
+        """
+        Called when the user wants to end the call or mentions that you have called the wrong person.
+        """
 
         await ctx.session.generate_reply(
             instructions="""Gracefully end the call according to communication rules.
@@ -308,9 +329,20 @@ class VoiceAgent(Agent):
 
         await self.hangup()
 
-async def entrypoint(ctx: JobContext):
-    logger.info(f"\n------------------Connecting to room {ctx.room.name}---------------------\n")
 
+#___________________________________Main Entrypoint Function executed when Job Dispatched__________________________
+
+async def entrypoint(ctx: JobContext):
+    logger.info(f"\n\n------------------Connecting to room {ctx.room.name}---------------------\n")
+
+    Metrics = {
+        'LLM_METRICS' : [],
+        'STT_METRICS' : [],
+        'TTS_METRICS' : [],
+        'EOU_METRICS' : []
+    }
+
+    #Extracting Metadata
     metadata = json.loads(ctx.job.metadata)
 
     first_name = metadata['first_name']
@@ -321,7 +353,6 @@ async def entrypoint(ctx: JobContext):
     call_summary = metadata['call_summary']
 
     phone = metadata['phone']  # Ex. +91987654321
-    print('\n',phone[3:],'\n')
     customer = f'{first_name} {last_name}'
 
 
@@ -342,9 +373,9 @@ async def entrypoint(ctx: JobContext):
     """
     )
 
-    agent = VoiceAgent(metadata=metadata,chat_ctx=initial_ctx)
+    agent = VoiceAgent(metadata=metadata,chat_ctx=initial_ctx)      #Initializing Worker Agent
 
-    await ctx.connect()
+    await ctx.connect()         #Connects the Voice Agent to Livekit Room
 
     session = AgentSession(
         stt=agent.stt,
@@ -355,26 +386,32 @@ async def entrypoint(ctx: JobContext):
         allow_interruptions=True
     )
 
-    session_monitor = metrics.UsageCollector()
-
+    #--------------Collect Call Metrics after each response-----------------
     @session.on("metrics_collected")
     def _on_metrics_collected(ev: MetricsCollectedEvent):
         if isinstance(ev.metrics, LLMMetrics):
-            print(f'LLM Metrics: {ev.metrics}')
+            Metrics['LLM_METRICS'].append(ev.metrics)
+            #print(f'LLM Metrics: {ev.metrics}')            #Prints LLM Metrics for each response in console
         elif isinstance(ev.metrics, STTMetrics):
-            print(f'STT Metrics: {ev.metrics}')
+            Metrics['STT_METRICS'].append(ev.metrics)
+            #print(f'STT Metrics: {ev.metrics}')            #Prints STT Metrics for each response in console
         elif isinstance(ev.metrics, TTSMetrics):
-            print(f'TTS Metrics: {ev.metrics}')
+            Metrics['TTS_METRICS'].append(ev.metrics)
+            #print(f'TTS Metrics: {ev.metrics}')            #Prints TTS Metrics for each response in console
         elif isinstance(ev.metrics, EOUMetrics):
-            print(f'EOU Metrics: {ev.metrics}')
+            Metrics['EOU_METRICS'].append(ev.metrics)
+            #print(f'EOU Metrics: {ev.metrics}')            #Prints EOU Metrics for each response in console
         else:
             pass
 
+
+    #----------------------These function will be executed after the call ends and session disolves--------------
     async def store_history():
+        print("\nStoring Conversation")
         chat_history = session.history.to_dict()
 
-        phone_ref = phone
-        name = f'{first_name} {last_name}'
+        phone_ref = phone[3:]
+        name = customer
         history = []
         db = Database()
         ref = db.init_user(phone=phone_ref, name=name)
@@ -389,15 +426,22 @@ async def entrypoint(ctx: JobContext):
 
         db.add_convo(ref=ref, agent='voice',msg=history)
 
+
+    async def store_metrics():
+        print("\nStoring Metrics\n")
+        call_metrics = json.dumps(Metrics, indent=4, default=serialize_metrics) #JSON format of all metrics for the current session
+
+        dt_ist = datetime.datetime.now()
+        filename = f"{phone}_CallMetrics_{dt_ist.day}-{dt_ist.strftime('%B')}-{dt_ist.year}T{dt_ist.strftime('%H_%M')}"
+        save_to_file(file_content=call_metrics, filename=filename)
+
         await session.aclose()
 
-    async def get_metrics():
-        metrics_summary = session_monitor.get_summary()
-        print(f"Metrics: \n{metrics_summary}")
-
     ctx.add_shutdown_callback(store_history)
-    ctx.add_shutdown_callback(get_metrics)
+    ctx.add_shutdown_callback(store_metrics)
 
+
+    #Create a Livekit Room for Agent and Customer to connect
     session_started = asyncio.create_task(
         session.start(
             agent=agent,
@@ -405,6 +449,8 @@ async def entrypoint(ctx: JobContext):
         )
     )
 
+
+    #Initiate Call to Customer using provided SIP Trunk
     try:
         await ctx.api.sip.create_sip_participant(
             api.CreateSIPParticipantRequest(
@@ -415,11 +461,11 @@ async def entrypoint(ctx: JobContext):
                 wait_until_answered=True
             )
         )
-        # wait for the agent session start and participant join
+
         await session_started
-        participant = await ctx.wait_for_participant(identity=f'{first_name} {last_name}')
+        participant = await ctx.wait_for_participant(identity=customer)
         logger.info(f"This participant joined: {participant.identity}")
-        await session.generate_reply(instructions=f"Confirm if you are talking to {customer}.")
+        await session.generate_reply(instructions="Follow the **Converstation Flow**")
 
     except api.TwirpError as e:
         logger.error(
@@ -431,6 +477,7 @@ async def entrypoint(ctx: JobContext):
 
 
 if __name__ == "__main__":
+#______________________________Run an Instance of the Worker Agent on Livekit Cloud_______________________________________
     agents.cli.run_app(
         WorkerOptions(
             entrypoint_fnc=entrypoint,

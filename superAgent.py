@@ -20,12 +20,11 @@ class SuperAgent:
             api_key="lSkg39BPClUnCXsloWHdoMUGp75f4el5"
         )
 
-        self.summarizer = ChatMistralAI(
-            model="mistral-large-latest",
-            max_tokens=4096,
-            temperature=0,
-            max_retries=10,
-            api_key="A2szsJ1jllMb7cfu66WjErjobj1i1EqZ"
+        self.summarizer = ChatGroq(
+            model='llama3-70b-8192',
+            temperature=0.2,
+            max_retries=5,
+            api_key=os.getenv('GROQ_API_KEY')
         )
 
         self.twillio_api='' #for connecting to voice agent

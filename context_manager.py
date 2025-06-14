@@ -11,13 +11,6 @@ class UserData:
         self.dir_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'user_files')
         self.file_path = ''
         self.Data = None
-        self.important_fields = [
-            'F_Name', 'L_Name', "Gender", 'Mobile_No', "Income", 'Bureau_score',
-            "Loan_amount", "Loan_type", "Interest_Rate", 'Interest', 'Loan_Processing_Fee', "Current_balance",
-            "Installment_Amount",
-            'Disbursal_Date', "Repayment_Start_Date", "Repayment_tenure", "Date_of_last_payment", 'Repayment_mode',
-            "No_of_late_payments"
-        ]
 
     def read_file(self,file_name):
         self.file_path = os.path.join(self.dir_path, file_name)
@@ -41,7 +34,7 @@ class UserData:
         try:
             phone_no = int(phone_no)
             if phone_no in self.Data['Mobile_No'].values:
-                user_data = self.Data.loc[self.Data['Mobile_No'] == phone_no][self.important_fields]
+                user_data = self.Data.loc[self.Data['Mobile_No'] == phone_no]
                 user_info = {
                     "first_name": user_data['F_Name'].item(),
                     "last_name": user_data['L_Name'].item(),
@@ -59,13 +52,18 @@ class UserData:
                     "balance_to_pay": user_data['Current_balance'].item(),
                     "payment_mode": user_data['Repayment_mode'].item(),
                     "late_payment": user_data['No_of_late_payments'].item(),
-                    "last_date": user_data['Date_of_last_payment'].item()
+                    "last_date": user_data['Date_of_last_payment'].item(),
+                    "due_date": user_data['Next_due_date'].item(),
+                    "pending_days": user_data['Pending_days'].item(),
+                    "minimum_due_amount": user_data['Minimum_amount_due'].item(),
+                    "late_fees": user_data["Late_Fees"].item(),
+                    "emi_eligible": user_data["Eligible_for_EMI"].item()
                 }
                 return user_info
             else:
                 print('User does not exist.')
                 return {"Error": "User does not exist."}
-        except (KeyError,TypeError) as e:
+        except (TypeError) as e:
             print(f'Such a Phone Number does not exist in {self.file_path}')
             return {}
 
