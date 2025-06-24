@@ -4,6 +4,7 @@ import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+from clean_variables import money_to_words, date_to_words
 import RAGer as rag
 
 class UserData:
@@ -40,23 +41,23 @@ class UserData:
                     "last_name": user_data['L_Name'].item(),
                     "phone_no": user_data['Mobile_No'].item(),
                     "gender": user_data['Gender'].item(),
-                    "income_in_inr": user_data['Income'].item(),
+                    "income_in_inr": money_to_words(user_data['Income'].item()),
                     "credit_score": user_data['Bureau_score'].item(),
                     "loan_type": user_data['Loan_type'].item(),
-                    "loan_amount": user_data['Loan_amount'].item(),
-                    "interest_rate": user_data['Interest_Rate'].item(),
-                    "process_fee": user_data['Loan_Processing_Fee'].item(),
-                    "installment": user_data['Installment_Amount'].item(),
-                    "start_date": user_data['Repayment_Start_Date'].item(),
-                    "tenure": user_data['Repayment_tenure'].item(),
-                    "balance_to_pay": user_data['Current_balance'].item(),
+                    "loan_amount": money_to_words(user_data['Loan_amount'].item()),
+                    "interest_rate": f"{user_data['Interest_Rate'].item()} percent",
+                    "process_fee": money_to_words(user_data['Loan_Processing_Fee'].item()),
+                    "installment": money_to_words(user_data['Installment_Amount'].item()),
+                    "start_date": date_to_words(user_data['Repayment_Start_Date'].item()),
+                    "tenure": f"{user_data['Repayment_tenure'].item()} months",
+                    "balance_to_pay": money_to_words(user_data['Current_balance'].item()),
                     "payment_mode": user_data['Repayment_mode'].item(),
                     "late_payment": user_data['No_of_late_payments'].item(),
-                    "last_date": user_data['Date_of_last_payment'].item(),
-                    "due_date": user_data['Next_due_date'].item(),
+                    "last_date": date_to_words(user_data['Date_of_last_payment'].item()),
+                    "due_date": date_to_words(user_data['Next_due_date'].item()),
                     "pending_days": user_data['Pending_days'].item(),
-                    "minimum_due_amount": user_data['Minimum_amount_due'].item(),
-                    "late_fees": user_data["Late_Fees"].item(),
+                    "minimum_due_amount": money_to_words(user_data['Minimum_amount_due'].item()),
+                    "late_fees": money_to_words(user_data["Late_Fees"].item()),
                     "emi_eligible": user_data["Eligible_for_EMI"].item()
                 }
                 return user_info
