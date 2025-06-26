@@ -22,7 +22,7 @@ def date_to_words(date_str):
     else:
         raise ValueError(f"Date '{date_str}' does not match any expected format. Expected formats: YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY")
 
-    parsed_date = formatted_date.strftime('%d %B %Y')
+    parsed_date = formatted_date.strftime('%d %B')
     return parsed_date
 
 def money_to_words(amount):
