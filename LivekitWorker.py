@@ -69,7 +69,28 @@ SIP_TRUNK_ID = os.getenv("SIP_TRUNK_ID")
 #_________________________________________This class defines the Voice Agent_______________________________________
 
 class VoiceAgent(Agent):
+    """
+        A Livekit Agent implementation for a credit card payment management executive.
+
+        This agent interacts with customers to provide loan details, remind about
+        payments, and facilitate a smooth repayment experience. It uses various
+        Livekit plugins for Speech-to-Text (STT), Large Language Model (LLM),
+        and Text-to-Speech (TTS) functionalities.
+
+        Attributes:
+            context (dict): Metadata containing customer and loan details.
+            customer_phone (str): The customer's phone number extracted from metadata.
+    """
+
     def __init__(self, metadata, chat_ctx: ChatContext) -> None:
+        """
+        Initializes the VoiceAgent with specific instructions and Livekit components.
+
+        Args:
+            metadata (dict): A dictionary containing customer-specific information
+                             such as phone, due_date, outstanding_amount, etc.
+            chat_ctx (ChatContext): The Livekit ChatContext for managing chat history.
+        """
         self.context = metadata
         self.customer_phone = self.context['phone'][3:]
 
@@ -261,7 +282,17 @@ class VoiceAgent(Agent):
 
     #This is a Livekit In-built function that has been Overridden
     async def on_user_turn_completed(self, turn_ctx: ChatContext, new_message: ChatMessage):
-        """Called when the user has finished speaking and the LLM is about to respond. """\
+        """
+        Called when the user has finished speaking and the LLM is about to respond.
+
+        This method can be overridden to add custom logic after a user's turn,
+        such as logging the user's message or performing specific actions before
+        the agent generates a reply.
+
+        Args:
+            turn_ctx (ChatContext): The current chat context of the session.
+            new_message (ChatMessage): The new message from the user.
+        """
 
         room_chat = turn_ctx.items
         for chat in room_chat[::-1]:
@@ -273,7 +304,12 @@ class VoiceAgent(Agent):
 
 
     async def hangup(self):
-        """Helper function to hang up the call by deleting the room"""
+        """
+        Helper function to hang up the call by deleting the room.
+
+        This function retrieves the job context and uses the Livekit API
+        to delete the associated room, effectively ending the call.
+        """
 
         logger.info(f"\n\n------------------Ending the call/ Terminating Room---------------------\n\n")
 
@@ -288,7 +324,11 @@ class VoiceAgent(Agent):
     @function_tool()
     async def current_date_time(self, ctx: RunContext) -> dict:
         """
-        Returns the current day, date and time in JSON format.
+                Returns the current day, date and time in JSON format.
+
+                Returns:
+                    dict: A dictionary containing the current day, date, and time.
+                          Example: {'day': 'Monday', 'date': '01 January, 2024', 'time': '03:45 PM'}
         """
         now = datetime.datetime.now()
         ist_timezone = pytz.timezone('Asia/Kolkata')
@@ -303,7 +343,10 @@ class VoiceAgent(Agent):
     @function_tool()
     async def get_user_data(self, ctx: RunContext) -> dict:
         """
-        Returns all information about the customer and their loan details in JSON format.
+            Returns all information about the customer and their loan details in JSON format.
+
+            Returns:
+                dict: A dictionary containing all available user and loan details.
         """
         phone_number=self.customer_phone
 
@@ -336,6 +379,18 @@ class VoiceAgent(Agent):
 #___________________________________Main Entrypoint Function executed when Job Dispatched__________________________
 
 async def entrypoint(ctx: JobContext):
+    """
+        The main entry point for the Livekit Agent job.
+
+        This asynchronous function initializes the VoiceAgent, connects it to the Livekit room,
+        manages call metrics, handles conversation history storage, and initiates the SIP call
+        to the customer.
+
+        Args:
+            ctx (JobContext): The Livekit JobContext, providing access to room, job metadata,
+                              and API functionalities.
+    """
+
     logger.info(f"\n\n------------------Connecting to room {ctx.room.name}---------------------\n")
 
     Metrics = {
@@ -352,7 +407,6 @@ async def entrypoint(ctx: JobContext):
     last_name = metadata['last_name']
     outstanding_amount = metadata['outstanding_amount']
     installment = metadata['installment']
-    wa_summary = metadata['whatsapp_summary']
     call_summary = metadata['call_summary']
 
     phone = metadata['phone']  # Ex. +91987654321
@@ -416,8 +470,14 @@ async def entrypoint(ctx: JobContext):
             pass
 
 
-    #----------------------These function will be executed after the call ends and session disolves--------------
+    #----------------------These function will be executed after the call ends and session dissolves--------------
     async def store_history():
+        """
+            Asynchronously stores the conversation history to the database.
+
+            This function extracts the chat history from the Livekit session,
+            formats it, and then adds it to the database associated with the user.
+        """
         print("\nStoring Conversation")
         chat_history = session.history.to_dict()
 
@@ -439,6 +499,14 @@ async def entrypoint(ctx: JobContext):
 
 
     async def store_metrics():
+        """
+        Asynchronously stores the collected call metrics to a file.
+
+        This function serializes the collected LLM, STT, TTS, and EOU metrics
+        into a JSON format and saves them to a timestamped file within the
+        'log_metrics' directory.
+        """
+
         print("\nStoring Metrics\n")
         call_metrics = json.dumps(Metrics, indent=4, default=serialize_metrics) #JSON format of all metrics for the current session
 
@@ -485,7 +553,7 @@ async def entrypoint(ctx: JobContext):
         ctx.shutdown()
 
 if __name__ == "__main__":
-#______________________________Run an Instance of the Worker Agent on Livekit Cloud_______________________________________
+#______________________________Run an Instance of the Worker Agent using Livekit Cloud_______________________________________
     agents.cli.run_app(
         WorkerOptions(
             entrypoint_fnc=entrypoint,

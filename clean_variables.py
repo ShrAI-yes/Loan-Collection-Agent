@@ -2,7 +2,24 @@ from datetime import datetime
 from num2words import num2words
 
 def date_to_words(date_str):
-    """Convert date string to words in English."""
+    """
+    Convert a date string to a human-readable format.
+
+    This function takes a date string in one of the following formats:
+    YYYY-MM-DD, DD-MM-YYYY, or MM-DD-YYYY and converts it to a
+    string with the day and full month name (e.g., '01 January').
+
+    Args:
+        date_str (str): The date string to be converted.
+
+    Returns:
+        str: The formatted date string (e.g., '01 January').
+
+    Raises:
+        ValueError: If the date string is not in a supported format or
+                    if the date is invalid (e.g., day is out of range for the month).
+    """
+
     possible_formats = [
         '%Y-%m-%d',  # YYYY-MM-DD
         '%d-%m-%Y',  # DD-MM-YYYY
@@ -26,7 +43,20 @@ def date_to_words(date_str):
     return parsed_date
 
 def money_to_words(amount):
-    """Convert numeric amount to words in Indian Rupees."""
+    """
+    Convert a numeric amount to words in Indian Rupees.
+
+    This function takes a numeric amount and converts it to its word
+    representation in Indian Rupees, handling both integer and decimal
+    values. For decimal values, it adds "and" before the paise (cents) part.
+
+    Args:
+        amount (float or int or str): The numeric amount to be converted.
+
+    Returns:
+        str: The amount in words (e.g., 'one thousand two hundred and fifty-six rupees and thirty-four paise').
+    """
+
     money = num2words(str(amount), to='currency', currency='INR', lang='en_IN')
 
     if "." in str(amount):
