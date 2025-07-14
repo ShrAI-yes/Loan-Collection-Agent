@@ -1,0 +1,43 @@
+{
+    "LLM_METRICS": [],
+    "STT_METRICS": [
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "9385b052-43c0-43dd-8a31-6964b1e32971",
+            "timestamp": 1751028678.3894088,
+            "duration": 0.0,
+            "audio_duration": 4.3499999999999925,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "9385b052-43c0-43dd-8a31-6964b1e32971",
+            "timestamp": 1751028683.3807945,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "9385b052-43c0-43dd-8a31-6964b1e32971",
+            "timestamp": 1751028688.3999107,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "9385b052-43c0-43dd-8a31-6964b1e32971",
+            "timestamp": 1751028693.420494,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        }
+    ],
+    "TTS_METRICS": [],
+    "EOU_METRICS": []
+}

@@ -1,3 +1,7 @@
+<<<<<<< Updated upstream:backend/streamlit_app/job_dispatch.py
+=======
+import sys
+>>>>>>> Stashed changes:job_dispatch.py
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -33,7 +37,12 @@ async def create_explicit_dispatch(customer_phone : int):
         'last_date': user_info['last_date'],
         'installment': user_info['installment'],
         'whatsapp_summary': user_info['whatsapp_summary'],
+<<<<<<< Updated upstream:backend/streamlit_app/job_dispatch.py
         'call_summary': user_info['call_summary']
+=======
+        'call_summary': user_info['call_summary'],
+        'use_context': False,
+>>>>>>> Stashed changes:job_dispatch.py
     }
     # print(metadata)
     print(f"[DEBUG] Metadata for dispatch: {metadata}")  # DEBUG
@@ -74,6 +83,7 @@ async def create_explicit_dispatch(customer_phone : int):
 
 #--------------------Use Case: Change the 'customer_phone= 10-digit phone number' in main function--------------------------#
 # if __name__ == '__main__':
+<<<<<<< Updated upstream:backend/streamlit_app/job_dispatch.py
 #     asyncio.run(create_explicit_dispatch(customer_phone=7208303007))
 
 # if __name__ == '__main__':
@@ -88,6 +98,12 @@ async def create_explicit_dispatch(customer_phone : int):
 #         sys.exit(1)
 
 #     asyncio.run(create_explicit_dispatch(customer_phone=phone))
+=======
+    # asyncio.run(create_explicit_dispatch(customer_phone=7700979995))
+    # asyncio.run(create_explicit_dispatch(customer_phone=7208303007))
+    #asyncio.run(create_explicit_dispatch(customer_phone=9324082517))
+    #asyncio.run(create_explicit_dispatch(customer_phone=9324396175))
+>>>>>>> Stashed changes:job_dispatch.py
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -99,4 +115,9 @@ if __name__ == '__main__':
         asyncio.run(create_explicit_dispatch(customer_phone=int(float(phone))))  # Handle scientific notation
     except ValueError:
         print("Invalid phone number format.")
+<<<<<<< Updated upstream:backend/streamlit_app/job_dispatch.py
         sys.exit(1)
+=======
+        sys.exit(1)
+
+>>>>>>> Stashed changes:job_dispatch.py

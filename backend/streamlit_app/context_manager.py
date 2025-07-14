@@ -1,10 +1,16 @@
 import os
 import json
 import pandas as pd
-import firebase_admin
-from firebase_admin import credentials, firestore
+from datetime import datetime
+
+# import firebase_admin
+# from firebase_admin import credentials, firestore
 
 # import RAGer as rag
+
+
+from supabase import create_client, Client
+
 
 class UserData:
     def __init__(self):
@@ -75,54 +81,80 @@ class UserData:
 
 class Database:
     def __init__(self):
+<<<<<<< Updated upstream:backend/streamlit_app/context_manager.py
         self.cred = credentials.Certificate("./conversational-ai-ab55c-firebase-adminsdk-fbsvc-e19783f081.json")
         try:
             firebase_admin.initialize_app(self.cred)
         except ValueError as e:
             print('Firebase App already Initialized')
         self.db = firestore.client()
+=======
+        url = os.getenv("SUPABASE_URL")
+        key = os.getenv("SUPABASE_KEY")
+        self.supabase: Client = create_client(url, key)
+>>>>>>> Stashed changes:context_manager.py
 
-    def init_user(self,phone: str, wa_id=None, chat_id=None, name=None):
-        doc_ref = self.db.collection("testing").document(phone)
-        if not doc_ref.get().exists:
+    def init_user(self, phone: str, wa_id=None, chat_id=None, name=None):
+        response = self.supabase.table("users").select("*").eq("phone", phone).execute()
+        
+        if not response.data: 
             data = {
-                "whatsapp_id": wa_id,
-                "id": chat_id,
                 "phone": phone,
+                "whatsapp_id": wa_id,
+                "chat_id": chat_id,
                 "name": name,
                 "whatsapp_messages": [],
                 "call_transcripts": []
             }
-            self.db.collection("testing").document(phone).set(data)
-
-        return self.db.collection("testing").document(phone)
+            self.supabase.table("users").insert(data).execute()
+        
+        return phone 
 
     def payload(self, name, text, time):
         msg = {
-            f"{name}": str(text),
-            "timestamp": time
+            name: str(text),
+            "timestamp": time.isoformat() if isinstance(time, datetime) else time
         }
         return msg
 
     def add_convo(self, ref, agent, msg):
-        if agent == 'voice':
-            ref.update({"call_transcripts": firestore.ArrayUnion(msg)})
-        elif agent == 'whatsapp':
-            ref.update({"whatsapp_messages": firestore.ArrayUnion(msg)})
+        response = self.supabase.table("users").select("*").eq("phone", ref).execute()
+        if not response.data:
+            raise Exception("User does not exist")
+
+        user_data = response.data[0]
+        
+        if agent == "voice":
+            user_data["call_transcripts"].append(msg)
+            self.supabase.table("users").update({
+                "call_transcripts": user_data["call_transcripts"]
+            }).eq("phone", ref).execute()
+        elif agent == "whatsapp":
+            user_data["whatsapp_messages"].append(msg)
+            self.supabase.table("users").update({
+                "whatsapp_messages": user_data["whatsapp_messages"]
+            }).eq("phone", ref).execute()
         else:
-            raise Exception('Invalid Agent')
+            raise Exception("Invalid Agent")
 
     def get_convo(self, ref, agent):
-        if agent == 'voice':
-            conversation = ref.get().to_dict()['call_transcripts']
-        elif agent == 'whatsapp':
-            conversation = ref.get().to_dict()['whatsapp_messages']
+        response = self.supabase.table("users").select("*").eq("phone", ref).execute()
+        if not response.data:
+            raise Exception("User does not exist")
+
+        user_data = response.data[0]
+        
+        if agent == "voice":
+            conversation = user_data["call_transcripts"]
+        elif agent == "whatsapp":
+            conversation = user_data["whatsapp_messages"]
         else:
-            raise Exception('Invalid Agent')
+            raise Exception("Invalid Agent")
 
         for msg in conversation:
-            if 'timestamp' in msg:
-                del msg['timestamp']
+            if "timestamp" in msg:
+                del msg["timestamp"]
 
-        latest_conversation = conversation[-10:]  # Slicing the list
+        latest_conversation = conversation[-10:]
         return latest_conversation
+    

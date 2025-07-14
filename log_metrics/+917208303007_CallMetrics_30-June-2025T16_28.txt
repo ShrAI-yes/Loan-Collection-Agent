@@ -1,0 +1,88 @@
+{
+    "LLM_METRICS": [],
+    "STT_METRICS": [
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281040.5552578,
+            "duration": 0.0,
+            "audio_duration": 4.399999999999992,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281045.5793476,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281050.6071286,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281055.6037273,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281060.647006,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281065.6658063,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281070.6859696,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281075.6780543,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "55258650-89de-4818-a2f5-615a12d0b6de",
+            "timestamp": 1751281080.7365444,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        }
+    ],
+    "TTS_METRICS": [],
+    "EOU_METRICS": []
+}

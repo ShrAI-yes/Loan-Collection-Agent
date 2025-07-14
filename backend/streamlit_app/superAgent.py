@@ -47,9 +47,9 @@ class SuperAgent:
         summary_template = """You are a simple chat conversation summarizer. 
         Summarize the given chat conversation which is provided in JSON format.
         If the chat conversation is blank return "No prior conversation occurred." as response 
-        Mention important details in the summary which can be used by a LLM as context.
         """
-
+        #Mention important details in the summary which can be used by a LLM as context.
+        
         decision_template = f"""You are an intelligent decision making model. 
         You have to use my response to decide between using either the 'whatsapp_agent' or the 'voice_agent'.
         If my response does not mention any preference for the agent use this preference: {self.preference}

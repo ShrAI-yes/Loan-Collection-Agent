@@ -1,0 +1,74 @@
+{
+    "LLM_METRICS": [
+        {
+            "type": "llm_metrics",
+            "label": "livekit.agents.llm.fallback_adapter.FallbackAdapter",
+            "request_id": "chatcmpl-BmzACgHytyZfCDI5wLT2i6jq1nmhF",
+            "timestamp": 1751014558.058117,
+            "duration": 0.8617042999976547,
+            "ttft": 0.7386071000000811,
+            "cancelled": false,
+            "completion_tokens": 61,
+            "prompt_tokens": 1902,
+            "prompt_cached_tokens": 0,
+            "total_tokens": 1963,
+            "tokens_per_second": 70.78994499640541,
+            "speech_id": "speech_d447dcf3d296"
+        }
+    ],
+    "STT_METRICS": [
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "3f73c3f0-0465-44b2-86ce-ff1f8f108150",
+            "timestamp": 1751014557.4672956,
+            "duration": 0.0,
+            "audio_duration": 4.3499999999999925,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "3f73c3f0-0465-44b2-86ce-ff1f8f108150",
+            "timestamp": 1751014562.516897,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "3f73c3f0-0465-44b2-86ce-ff1f8f108150",
+            "timestamp": 1751014567.508898,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "3f73c3f0-0465-44b2-86ce-ff1f8f108150",
+            "timestamp": 1751014572.5669003,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        }
+    ],
+    "TTS_METRICS": [
+        {
+            "type": "tts_metrics",
+            "label": "livekit.plugins.elevenlabs.tts.TTS",
+            "request_id": "f9a83b32478a",
+            "timestamp": 1751014559.462875,
+            "ttfb": 0.6098621000019193,
+            "duration": 1.213482400002249,
+            "audio_duration": 14.210612244897982,
+            "cancelled": false,
+            "characters_count": 220,
+            "streamed": true,
+            "segment_id": "6e750d9d6b76",
+            "speech_id": "speech_d447dcf3d296"
+        }
+    ],
+    "EOU_METRICS": []
+}

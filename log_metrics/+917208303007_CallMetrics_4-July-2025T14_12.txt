@@ -1,0 +1,277 @@
+{
+    "LLM_METRICS": [
+        {
+            "type": "llm_metrics",
+            "label": "livekit.agents.llm.fallback_adapter.FallbackAdapter",
+            "request_id": "chatcmpl-BpWHQLDamwcIE2mDYkShp8TyAJiCC",
+            "timestamp": 1751618512.9262195,
+            "duration": 0.9158424999986892,
+            "ttft": 0.8543369999970309,
+            "cancelled": false,
+            "completion_tokens": 42,
+            "prompt_tokens": 1902,
+            "prompt_cached_tokens": 0,
+            "total_tokens": 1944,
+            "tokens_per_second": 45.859413600111495,
+            "speech_id": "speech_6d6a797c6791"
+        },
+        {
+            "type": "llm_metrics",
+            "label": "livekit.agents.llm.fallback_adapter.FallbackAdapter",
+            "request_id": "chatcmpl-BpWHeoDUIjsL4d221UAbO9ejhsyDS",
+            "timestamp": 1751618527.438787,
+            "duration": 1.3044545999946422,
+            "ttft": 1.055472699998063,
+            "cancelled": false,
+            "completion_tokens": 69,
+            "prompt_tokens": 1951,
+            "prompt_cached_tokens": 1792,
+            "total_tokens": 2020,
+            "tokens_per_second": 52.8956699606743,
+            "speech_id": "speech_9237d1851178"
+        },
+        {
+            "type": "llm_metrics",
+            "label": "livekit.agents.llm.fallback_adapter.FallbackAdapter",
+            "request_id": "chatcmpl-BpWI1f5sXHPIE0tb1yjFqsPmGLZDx",
+            "timestamp": 1751618550.4396176,
+            "duration": 1.4026305000006687,
+            "ttft": 0.9130512999981875,
+            "cancelled": false,
+            "completion_tokens": 60,
+            "prompt_tokens": 2044,
+            "prompt_cached_tokens": 1920,
+            "total_tokens": 2104,
+            "tokens_per_second": 42.77676836484833,
+            "speech_id": "speech_fa0b4f3f44d6"
+        },
+        {
+            "type": "llm_metrics",
+            "label": "livekit.agents.llm.fallback_adapter.FallbackAdapter",
+            "request_id": "chatcmpl-BpWI2VWYLOHSQyEzZyFl9In4Qjx39",
+            "timestamp": 1751618551.770756,
+            "duration": 1.336956500002998,
+            "ttft": 1.2476997999983723,
+            "cancelled": false,
+            "completion_tokens": 46,
+            "prompt_tokens": 2062,
+            "prompt_cached_tokens": 0,
+            "total_tokens": 2108,
+            "tokens_per_second": 34.40650462441886,
+            "speech_id": "speech_6b2994b907a6"
+        }
+    ],
+    "STT_METRICS": [
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618496.4157348,
+            "duration": 0.0,
+            "audio_duration": 4.399999999999992,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618501.445083,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618506.4650888,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618511.4872804,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618516.5159442,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618521.5058715,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618526.5559082,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618531.6168625,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618536.6359215,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618541.6649737,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618546.6855462,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618551.705178,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618556.6962576,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618561.6966019,
+            "duration": 0.0,
+            "audio_duration": 4.99999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "6250d10d-f8ee-41b7-9c6d-f481f95dc839",
+            "timestamp": 1751618574.4259365,
+            "duration": 0.0,
+            "audio_duration": 0.6,
+            "streamed": true
+        }
+    ],
+    "TTS_METRICS": [
+        {
+            "type": "tts_metrics",
+            "label": "livekit.plugins.elevenlabs.tts.TTS",
+            "request_id": "9b92ebd88f57",
+            "timestamp": 1751618514.7878444,
+            "ttfb": 1.0904207000057795,
+            "duration": 1.6175953000056325,
+            "audio_duration": 8.96,
+            "cancelled": false,
+            "characters_count": 136,
+            "streamed": true,
+            "segment_id": "2d21b73356dc",
+            "speech_id": "speech_6d6a797c6791"
+        },
+        {
+            "type": "tts_metrics",
+            "label": "livekit.plugins.elevenlabs.tts.TTS",
+            "request_id": "f483c0fc1978",
+            "timestamp": 1751618528.9937956,
+            "ttfb": 0.5886341999939759,
+            "duration": 1.4908319999958621,
+            "audio_duration": 16.19591836734697,
+            "cancelled": false,
+            "characters_count": 233,
+            "streamed": true,
+            "segment_id": "21ac191e982f",
+            "speech_id": "speech_9237d1851178"
+        },
+        {
+            "type": "tts_metrics",
+            "label": "livekit.plugins.elevenlabs.tts.TTS",
+            "request_id": "0f00ecb7edcd",
+            "timestamp": 1751618551.4288385,
+            "ttfb": 0.6113678999972763,
+            "duration": 1.169220800002222,
+            "audio_duration": 11.415510204081643,
+            "cancelled": false,
+            "characters_count": 174,
+            "streamed": true,
+            "segment_id": "ff9bc90b5717",
+            "speech_id": "speech_fa0b4f3f44d6"
+        },
+        {
+            "type": "tts_metrics",
+            "label": "livekit.plugins.elevenlabs.tts.TTS",
+            "request_id": "f27d29f76511",
+            "timestamp": 1751618553.005004,
+            "ttfb": 0.6060437999985879,
+            "duration": 1.0229309999995166,
+            "audio_duration": 12.120816326530626,
+            "cancelled": false,
+            "characters_count": 165,
+            "streamed": true,
+            "segment_id": "7e1f074aadc4",
+            "speech_id": "speech_6b2994b907a6"
+        }
+    ],
+    "EOU_METRICS": [
+        {
+            "type": "eou_metrics",
+            "timestamp": 1751618526.1330059,
+            "end_of_utterance_delay": 0.6104848384857178,
+            "transcription_delay": 0.6104848384857178,
+            "on_user_turn_completed_delay": 0.0,
+            "speech_id": "speech_9237d1851178"
+        },
+        {
+            "type": "eou_metrics",
+            "timestamp": 1751618549.035863,
+            "end_of_utterance_delay": 0.5759999752044678,
+            "transcription_delay": 0.5358531475067139,
+            "on_user_turn_completed_delay": 0.0,
+            "speech_id": "speech_fa0b4f3f44d6"
+        }
+    ]
+}

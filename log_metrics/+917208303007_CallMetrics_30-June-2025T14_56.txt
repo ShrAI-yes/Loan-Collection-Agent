@@ -1,0 +1,59 @@
+{
+    "LLM_METRICS": [
+        {
+            "type": "llm_metrics",
+            "label": "livekit.agents.llm.fallback_adapter.FallbackAdapter",
+            "request_id": "chatcmpl-Bo53mhzQLJ7Y7znQ5sNIScO7DQtP9",
+            "timestamp": 1751275551.827874,
+            "duration": 1.5268633000086993,
+            "ttft": 1.5221225999994203,
+            "cancelled": false,
+            "completion_tokens": 20,
+            "prompt_tokens": 1902,
+            "prompt_cached_tokens": 0,
+            "total_tokens": 1922,
+            "tokens_per_second": 13.09874957364294,
+            "speech_id": "speech_06ed9543b49b"
+        }
+    ],
+    "STT_METRICS": [
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "8444481d-5812-474f-b03b-56fd9592d09d",
+            "timestamp": 1751275546.3823469,
+            "duration": 0.0,
+            "audio_duration": 4.3499999999999925,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "8444481d-5812-474f-b03b-56fd9592d09d",
+            "timestamp": 1751275551.4313238,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "8444481d-5812-474f-b03b-56fd9592d09d",
+            "timestamp": 1751275556.4912045,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        },
+        {
+            "type": "stt_metrics",
+            "label": "livekit.plugins.deepgram.stt.STT",
+            "request_id": "8444481d-5812-474f-b03b-56fd9592d09d",
+            "timestamp": 1751275561.5116777,
+            "duration": 0.0,
+            "audio_duration": 5.04999999999999,
+            "streamed": true
+        }
+    ],
+    "TTS_METRICS": [],
+    "EOU_METRICS": []
+}
